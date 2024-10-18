@@ -1,6 +1,12 @@
 <template>
 
   <div>
+    <q-btn
+    class="login-btn q-my-md text-white bg-grey-8"
+    label="Login"
+    @click="goToLogin"
+    icon="login"
+  />
     <q-tabs
       v-model="tab"
       inline-label
@@ -217,11 +223,17 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from 'vue-router'
+
 import { menu} from "../composables/menu"
 
 
 
 const {getFoodGroupsAndFoodsByCompanyName,check2,getMenu}=menu();
+const router = useRouter();
+function goToLogin() {
+  router.push('/login')  
+}
 
 // window.location.hostname tam alan adını verir: "qrmenu.celep.fupico.com"
 const hostname = window.location.hostname;

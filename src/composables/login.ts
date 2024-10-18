@@ -22,7 +22,7 @@ export function useLoginApi() {
 
         localStorage.removeItem('userDetail');
         localStorage.setItem('accessToken', response.data.data);
-        router.replace('/'); // login olunca yönlendirilecek sayfa
+        router.replace('/admin'); // login olunca yönlendirilecek sayfa
 
         return null;
       }
