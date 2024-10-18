@@ -221,7 +221,7 @@ import { menu} from "../composables/menu"
 
 
 
-const {getFoodGroupsAndFoodsByCompanyName}=menu();
+const {getFoodGroupsAndFoodsByCompanyName,check2,getMenu}=menu();
 
 // window.location.hostname tam alan adını verir: "qrmenu.celep.fupico.com"
 const hostname = window.location.hostname;
@@ -238,13 +238,15 @@ const dataMenuu=ref({});
 const reloadMenu =async ()=>{
   
   dataMenuu.value= await getFoodGroupsAndFoodsByCompanyName(companyName.value);
+  //let result = await getMenu();
   console.log('dataMenuu', dataMenuu.value)
+  //console.log('result', result)
 
 
 }
 onMounted(async()=>{
   //console.log('companyNamee', companyNamee);
-  //await reloadMenu();
+  await reloadMenu();
 
 })
 

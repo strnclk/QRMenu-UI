@@ -37,7 +37,7 @@ api.interceptors.request.use(
     const accessToken = getAccessToken();
 
     if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+      config.headers['FuPiCo-Security'] = `Bearer ${accessToken}`;
     }
     return config;
   },

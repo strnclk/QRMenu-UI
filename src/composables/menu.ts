@@ -35,9 +35,69 @@ export function menu() {
 
   };
 
+  const check2 = async (data:any) => {
+   
+    try {
+        
+       let response = await api.get(`/Menu/check2`)
+       console.log("response -> ", response);
+
+      if (response.status === 200) {
+        return response.data.data;
+      }
+
+    } catch (error: any) {
+      console.log("Hata:", error);
+      if (error.response.status == 401) {
+
+        router.replace("/unauthorize")
+        return { ok: "Error" };
+      }
+
+      if (error.response.status === 403) {
+
+        router.replace("/is-not-auth")
+        return { ok: "Error" };
+      }
+      return { errors: error.response.data.errors.errors }
+    }
+
+  };
+  const getMenu = async (data:any) => {
+   
+    try {
+        data=9;
+       let response = await api.get(`/Menu/getMenu/${data}`)
+       console.log("response -> ", response);
+
+      if (response.status === 200) {
+        return response.data.data;
+      }
+
+    } catch (error: any) {
+      console.log("Hata:", error);
+      if (error.response.status == 401) {
+
+        router.replace("/unauthorize")
+        return { ok: "Error" };
+      }
+
+      if (error.response.status === 403) {
+
+        router.replace("/is-not-auth")
+        return { ok: "Error" };
+      }
+      return { errors: error.response.data.errors.errors }
+    }
+
+  };
+
+
 
   return {
     getFoodGroupsAndFoodsByCompanyName,
+    check2,
+    getMenu
 
 
   }
