@@ -12,7 +12,7 @@
       <div v-for="(i, index) in dataMenu.$values" :key="index">
         <q-tab :name="`tab${index}`">
           <div class="tab-content">
-            <q-img class="tab-img" src="/images/kahvalti.jpg" contain />
+            <q-img class="tab-img" :src="i.imageUrl" contain />
             <div class="tab-label text-bold" style="font-size: large">
               {{ i.groupName }}
             </div>
