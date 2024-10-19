@@ -14,7 +14,7 @@ export function menu() {
        console.log("response -> ", response);
 
       if (response.status === 200) {
-        return response.data.data;
+        return response.data;
       }
 
     } catch (error: any) {
@@ -43,7 +43,7 @@ export function menu() {
        console.log("response -> ", response);
 
       if (response.status === 200) {
-        return response.data.data;
+        return response.data;
       }
 
     } catch (error: any) {
@@ -66,12 +66,12 @@ export function menu() {
   const getMenu = async (data:any) => {
    
     try {
-        data=9;
+        //data=9;
        let response = await api.get(`/Menu/getMenu/${data}`)
        console.log("response -> ", response);
 
       if (response.status === 200) {
-        return response.data.data;
+        return response.data;
       }
 
     } catch (error: any) {
@@ -99,8 +99,8 @@ export function menu() {
        console.log("response -> ", response);
 
       if (response.status === 200) {
-        localStorage.setItem('companyInfo', response.data);
-        return response.data.data;
+        //localStorage.setItem('companyInfo', response.data);
+        return response.data;
 
       }
 

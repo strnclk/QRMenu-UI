@@ -5,6 +5,7 @@ export const App = () => {
     {
       projectBy: "Fupico",
       version: "v1",
+      //apiUrl: 'https://localhost:1923/api',
       apiUrl: 'https://api.qrmenu.fupico.com/api',
     
 
