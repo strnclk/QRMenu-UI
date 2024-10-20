@@ -1,32 +1,42 @@
-import { RouteRecordRaw } from 'vue-router';
+import { RouteRecordRaw } from "vue-router";
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/',
-    component: () => import('layouts/EmptyLayout.vue'),
-    children: [{ path: '', component: () => import('pages/Menu.vue') }],
+    path: "/",
+    component: () => import("layouts/EmptyLayout.vue"),
+    children: [
+      // Varsayılan userId olmadan ana sayfa yönlendirmesi
+      { path: "", component: () => import("pages/Menu.vue") },
+    ],
   },
   {
-    path: '/menu',
-    component: () => import('layouts/EmptyLayout.vue'),
-    children: [{ path: '/menu', component: () => import('pages/Menu.vue') }],
+    // Dinamik userId parametresi ile menu yönlendirmesi
+    path: "/menu/:userId?",
+    component: () => import("layouts/EmptyLayout.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("pages/Menu.vue"),
+      },
+    ],
   },
   {
-    path: '/login',
-    component: () => import('src/layouts/LoginLayout.vue'),
-    children: [{ path: '/login', component: () => import('pages/Login.vue') }],
+    // Login sayfası yönlendirmesi
+    path: "/login",
+    component: () => import("src/layouts/LoginLayout.vue"),
+    children: [{ path: "", component: () => import("pages/Login.vue") }],
   },
   {
-    path: '/admin',
-    component: () => import('pages/Admin.vue'),
-    children: [{ path: '/admin', component: () => import('pages/Admin.vue') }],
+    // Admin sayfası yönlendirmesi
+    path: "/admin",
+    component: () => import("pages/Admin.vue"),
+    children: [{ path: "", component: () => import("pages/Admin.vue") }],
   },
 
-  // Always leave this as last one,
-  // but you can also remove it
+  // Bilinmeyen rotalar için 404 sayfası
   {
-    path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
+    path: "/:catchAll(.*)*",
+    component: () => import("pages/ErrorNotFound.vue"),
   },
 ];
 

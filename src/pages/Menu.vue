@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- Tablar -->
     <q-tabs
       v-model="tab"
       inline-label
@@ -9,7 +10,11 @@
       no-shadow
       flat
     >
-      <div v-for="(i, index) in dataMenu.$values" :key="index">
+      <!-- Sadece foods array'i dolu olan foodgroupları göster -->
+      <div
+        v-for="(i, index) in dataMenu.filter((group) => group.foods.length > 0)"
+        :key="index"
+      >
         <q-tab :name="`tab${index}`">
           <div class="tab-content">
             <q-img class="tab-img" :src="i.imageUrl" contain />
@@ -21,10 +26,11 @@
       </div>
     </q-tabs>
 
-    <q-tab-panels class="custom-tab-panels" v-model="tab" animated>
+    <!-- Tab Panel İçerikleri - Swipeable özelliği ile -->
+    <q-tab-panels class="custom-tab-panels" v-model="tab" animated swipeable>
       <q-tab-panel
         :name="`tab${index}`"
-        v-for="(i, index) in dataMenu.$values"
+        v-for="(i, index) in dataMenu.filter((group) => group.foods.length > 0)"
         :key="index"
       >
         <div class="text-h6 text-grey-2">{{ i.groupName }}</div>
@@ -32,10 +38,15 @@
         <div class="row">
           <div
             class="col-12 col-sm-6 col-md-4"
-            v-for="(ii, indexx) in i.foods.$values"
+            v-for="(ii, indexx) in i.foods"
             :key="indexx"
           >
-            <q-card class="my-card q-ma-sm q-pa-none custom-card" flat bordered>
+            <q-card
+              class="my-card q-ma-sm q-pa-none custom-card"
+              flat
+              bordered
+              @click="openModal(ii)"
+            >
               <q-card-section class="row no-wrap q-pa-none">
                 <!-- Yemek İsmi ve Açıklama Bölümü -->
                 <q-card-section class="col-7 q-pa-none">
@@ -80,49 +91,127 @@
         </div>
       </q-tab-panel>
     </q-tab-panels>
+
+    <!-- Sağa ve Sola geçiş butonları -->
+    <div class="row justify-center q-pt-lg">
+      <q-btn
+        icon="arrow_back"
+        @click="prevTab"
+        :disable="tabIndex === 0"
+        color="primary"
+        flat
+        rounded
+        size="lg"
+        class="q-mr-sm"
+      />
+      <q-btn
+        icon="arrow_forward"
+        @click="nextTab"
+        :disable="tabIndex === dataMenu.length - 1"
+        color="primary"
+        flat
+        rounded
+        size="lg"
+      />
+    </div>
+
+    <q-dialog v-model="showModal">
+      <q-card class="modal-card q-pa-md">
+        <q-card-section v-if="selectedFood">
+          <div class="text-h6">{{ selectedFood?.name }}</div>
+          <q-img
+            class="q-mt-md"
+            :src="selectedFood?.imageUrl"
+            contain
+            style="max-width: 300px; max-height: 300px"
+          />
+        </q-card-section>
+        <q-card-section v-if="selectedFood?.description">
+          <div>{{ selectedFood?.description }}</div>
+          <div class="text-h6 q-mt-md">{{ selectedFood?.price }} ₺</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Kapat" @click="showModal = false" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, watch } from "vue";
-
+<script lang="ts" setup>
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import { menu } from "../composables/menu";
 
-const { getFoodGroupsAndFoodsByCompanyName, check2, getMenu } = menu();
+// Tip tanımlamaları
+interface Food {
+  name: string;
+  imageUrl: string;
+  description: string;
+  price: number;
+}
 
+interface FoodGroup {
+  groupName: string;
+  imageUrl: string;
+  foods: Food[];
+}
+
+const { getMenu } = menu();
 const tab = ref("tab0");
+const tabIndex = ref(0);
 
-// window.location.hostname tam alan adını verir: "qrmenu.fupico.com"
-const hostname = window.location.hostname;
+// Vue Router'dan route parametrelerini alıyoruz
+const route = useRoute();
 
-// Alt alan adını çekmek için hostname'i bölüyoruz
-//const parts = hostname.split("qrmenu.fupico.com/");
-const parts = hostname.split("qrmenu.fupico.com/");
+// URL'den userId parametresini alıyoruz, yoksa varsayılanı kullanıyoruz
+const userId = ref<string>(
+  (route.params.userId as string) || "1f327e7a-0d39-404e-9fff-c6ff37deef00"
+);
 
-// url'den sonraki id'yi almak
-const companyNamee = ref(parts[1]);
+// `dataMenu` artık `FoodGroup` tipinde olacak
+const dataMenu = ref<FoodGroup[]>([]);
 
-const companyName = ref("kosebasi");
-const dataMenu = ref({});
+const showModal = ref(false);
+// `selectedFood` artık `Food` tipinde olacak
+const selectedFood = ref<Food | null>(null);
 
 const reloadMenu = async () => {
-  console.log('companyNamee', companyNamee.value)
-  dataMenu.value = await getFoodGroupsAndFoodsByCompanyName(companyName.value);
-  //let result = await getMenu();
-  console.log("dataMenu", dataMenu.value);
-  //console.log('result', result)
+  dataMenu.value = await getMenu(userId.value);
 };
+
+// Tab geçişi için fonksiyonlar
+const nextTab = () => {
+  if (tabIndex.value < dataMenu.value.length - 1) {
+    tabIndex.value++;
+    tab.value = `tab${tabIndex.value}`;
+  }
+};
+
+const prevTab = () => {
+  if (tabIndex.value > 0) {
+    tabIndex.value--;
+    tab.value = `tab${tabIndex.value}`;
+  }
+};
+
+// Yemek kartına tıklayınca modal açılır
+const openModal = (food: Food) => {
+  selectedFood.value = food;
+  showModal.value = true;
+};
+
 onMounted(async () => {
-  //console.log('companyNamee', companyNamee);
   await reloadMenu();
   tab.value = "tab0";
 });
-
-
-
 </script>
 
 <style scoped>
+.modal-card {
+  max-width: 500px;
+  max-height: 600px;
+}
 .custom-card {
   background-color: rgba(40, 37, 37, 0.7); /* Beyaz arka plan, %80 opaklık */
 }
