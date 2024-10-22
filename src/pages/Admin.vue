@@ -8,7 +8,7 @@
       @input="resetViewOnTabChange"
     >
       <q-tab name="companyInfo" icon="business" label="KURUM BİLGİLERİ" />
-      <q-tab name="edit" icon="edit" label="DÜZENLEME" />
+      <q-tab name="edit" icon="edit" label="MENÜ DÜZENLEME" />
     </q-tabs>
 
     <q-tab-panels
@@ -126,34 +126,33 @@
                 <div class="text-body1 text-grey-7">
                   {{ group.description || "Açıklama Yok" }}
                 </div>
+                <q-card-actions align="right">
+                  <q-btn
+                    flat
+                    icon="edit"
+                    color="primary"
+                    @click="openUpdateFoodGroupDialog(group)"
+                  >
+                    Düzenle
+                  </q-btn>
+                  <q-btn
+                    flat
+                    icon="delete"
+                    color="negative"
+                    @click="handleDeleteFoodGroup(group.foodGroupId)"
+                  >
+                    Sil
+                  </q-btn>
+                  <q-btn
+                    flat
+                    icon="visibility"
+                    color="secondary"
+                    @click="fetchFoods(group.foodGroupId)"
+                  >
+                    Yemekler
+                  </q-btn>
+                </q-card-actions>
               </q-card-section>
-
-              <q-card-actions align="right">
-                <q-btn
-                  flat
-                  icon="edit"
-                  color="primary"
-                  @click="openUpdateFoodGroupDialog(group)"
-                >
-                  Düzenle
-                </q-btn>
-                <q-btn
-                  flat
-                  icon="delete"
-                  color="negative"
-                  @click="handleDeleteFoodGroup(group.foodGroupId)"
-                >
-                  Sil
-                </q-btn>
-                <q-btn
-                  flat
-                  icon="visibility"
-                  color="secondary"
-                  @click="fetchFoods(group.foodGroupId)"
-                >
-                  Yemekler
-                </q-btn>
-              </q-card-actions>
             </q-card>
           </div>
 
@@ -765,72 +764,125 @@ onMounted(async () => {
 <style scoped>
 .q-tab-panel {
   display: flex;
-  justify-content: center; /* İçeriği ortalamak için */
-  align-items: center; /* Dikeyde ortalamak için */
-  flex-direction: column; /* Elemanları dikey hizalamak için */
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .q-pa-md.edit-tab {
-  width: 100%; /* İçeriğin genişliğini tam olarak kaplamasını sağlar */
+  width: 100%;
 }
 
 .row {
   margin-left: auto;
   margin-right: auto;
-  max-width: 1600px; /* Genişliğe sınır koymak için */
+  max-width: 1600px;
 }
-/* Dialog boyutu için stil ekleme */
+
 .q-dialog {
   max-width: 600px;
   max-height: 1000px;
 }
 
 .q-card {
-  height: 450px; /* Sabit kart yüksekliği */
+  max-height: 450px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   max-width: 500px;
   margin: auto;
+  margin-bottom: 5px;
 }
 
 .q-img {
   display: block;
-
-  width: 200px; /* Sabit genişlik */
-  height: 200px; /* Sabit yükseklik */
-  object-fit: cover; /* Resmi kesmeden, sığacak şekilde kırpar */
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
   margin: 0 auto;
 }
 
 .q-dialog .q-card {
-  max-width: 600px; /* Dialogda kart genişliği */
+  max-width: 600px;
 }
 
 .q-dialog .q-card-section {
-  text-align: center; /* İçeriği ortala */
+  text-align: center;
 }
 
 .q-dialog .q-card-actions {
-  justify-content: flex-end; /* Butonları sağa hizala */
+  justify-content: flex-end;
 }
 
 /* Yemek grubu ve yemek güncelleme dialoglarının genişlik ve yükseklik ayarları */
 .wide-dialog .q-card {
-  max-width: 400px; /* Genişliği artır */
-  max-height: 90vh; /* Yüksekliği artır, ancak ekran yüksekliğinin %90'ından fazla olmasın */
-  min-height: 70vh;
+  max-width: 400px;
+  max-height: 90vh;
+  min-height: 60vh;
 }
 
 .wide-card {
-  min-width: 400px; /* Minimum genişlik ayarı */
-  min-height: 400px; /* Minimum yükseklik ayarı */
+  min-width: 300px;
+  min-height: 200px;
 }
 
 .dialog-img-preview {
-  width: 300px;
-  height: 300px;
-  object-fit: cover; /* Resim kesilmeden düzgün şekilde sığsın */
-  margin: 20px auto;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  margin: 10px auto;
+}
+
+/* Responsive adjustments for smaller screens (mobile and tablets) */
+@media screen and (max-width: 1024px) {
+  /* Kart genişliği ve yüksekliği orta ekranlar için */
+  .q-dialog,
+  .q-card {
+    max-width: 90%;
+    max-height: 80vh;
+  }
+
+  .q-img,
+  .dialog-img-preview {
+    width: 150px;
+    height: 150px;
+  }
+
+  .wide-dialog .q-card {
+    max-width: 80%;
+    min-height: 50vh;
+  }
+
+  .wide-card {
+    min-width: 250px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  /* Kart genişliği ve yüksekliği mobil cihazlar için */
+  .q-dialog,
+  .q-card {
+    max-width: 100%;
+    max-height: 90vh;
+  }
+
+  .q-img,
+  .dialog-img-preview {
+    width: 120px;
+    height: 120px;
+  }
+
+  .wide-dialog .q-card {
+    max-width: 100%;
+    min-height: 50vh;
+  }
+
+  .wide-card {
+    min-width: 100%;
+  }
+
+  .q-dialog .q-card-actions {
+    justify-content: center; /* Mobilde butonları ortaya al */
+  }
 }
 </style>
