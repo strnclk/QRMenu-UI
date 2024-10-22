@@ -90,11 +90,15 @@
       <q-tab-panel name="edit" class="q-pa-md">
         <div class="text-center text-h6 q-mb-md">Yemek Yönetimi</div>
         <div class="q-pa-md edit-tab">
-          <div v-if="foodGroups.length > 0" class="row q-gutter-md">
+          <div
+            v-if="foodGroups.length > 0"
+            class="row q-gutter-md justify-center"
+            style="margin: 0 auto; max-width: 100%"
+          >
             <q-card
               v-for="(group, index) in foodGroups"
               :key="index"
-              class="col-12 col-sm-6 col-md-4 q-mb-md"
+              class="col-12 col-sm-6 col-md-3 col-lg-2 q-mb-md"
               bordered
               flat
             >
@@ -169,12 +173,13 @@
 
     <!-- Yemekler Listesi -->
     <div v-if="foods.length > 0" class="q-pa-md">
-      <h4>Yemekler</h4>
+      <div class="text-center text-h6 q-mb-md"><h4>Yemekler</h4></div>
+
       <div class="row q-gutter-md">
         <q-card
           v-for="(food, index) in foods"
           :key="index"
-          class="col-12 col-sm-6 col-md-4 q-mb-md"
+          class="col-12 col-sm-6 col-md-2 q-mb-md"
           bordered
           flat
         >
@@ -510,3 +515,21 @@ onMounted(async () => {
   originalCompanyDto.value = { ...companyDto.value };
 });
 </script>
+<style scoped>
+.q-tab-panel {
+  display: flex;
+  justify-content: center; /* İçeriği ortalamak için */
+  align-items: center; /* Dikeyde ortalamak için */
+  flex-direction: column; /* Elemanları dikey hizalamak için */
+}
+
+.q-pa-md.edit-tab {
+  width: 100%; /* İçeriğin genişliğini tam olarak kaplamasını sağlar */
+}
+
+.row {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1600px; /* Genişliğe sınır koymak için */
+}
+</style>
