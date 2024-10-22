@@ -1,7 +1,7 @@
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 
-export function menu() {
+export function adminAPIs() {
   const router = useRouter();
 
   const getCompany = async () => {
@@ -33,7 +33,32 @@ export function menu() {
       };
     }
   };
-
+  const addOrUpdateCompany = async (companyDto: any) => {
+    try {
+      let response = await api.post("/Admin/addOrUpdateCompany", companyDto, {
+        headers: {
+          "FuPiCo-Security": `Bearer ${localStorage.getItem("accessToken")}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.status === 200 ? response.data : null;
+    } catch (error: any) {
+      const response = error.response;
+      if (response && response.status === 401) {
+        router.replace("/unauthorize");
+        return { ok: "Error" };
+      }
+      if (response && response.status === 403) {
+        router.replace("/is-not-auth");
+        return { ok: "Error" };
+      }
+      return {
+        errors: response
+          ? response.data.errors.errors
+          : ["An unexpected error occurred"],
+      };
+    }
+  };
   const getFoodGroups = async () => {
     try {
       let response = await api.get("/Admin/getFoodGroups", {
@@ -203,5 +228,6 @@ export function menu() {
     getFoodsByFoodGroupId,
     updateFood,
     deleteFood,
+    addOrUpdateCompany,
   };
 }

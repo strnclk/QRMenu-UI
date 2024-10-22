@@ -32,7 +32,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import("pages/Admin.vue"),
     children: [{ path: "", component: () => import("pages/Admin.vue") }],
   },
-
+  {
+    // Admin sayfası yönlendirmesi
+    path: "/test",
+    component: () => import("pages/test.vue"),
+    children: [{ path: "", component: () => import("pages/test.vue") }],
+  },
   // Bilinmeyen rotalar için 404 sayfası
   {
     path: "/:catchAll(.*)*",

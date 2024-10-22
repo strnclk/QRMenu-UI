@@ -19,21 +19,69 @@
       <!-- Kurum Bilgileri Tabı -->
       <q-tab-panel name="companyInfo" class="q-pa-md">
         <div class="company-info text-center q-mb-md">
-          <q-img
-            :src="companyLogoUrl"
-            alt="Company Logo"
-            contain
-            style="max-width: 300px; margin: 0 auto"
-          />
-          <q-card class="q-mt-md text-dark shadow-3 rounded-lg q-pa-md card">
-            <q-card-section class="card-section">
-              <div class="text-h6 q-mb-xs shadow-3">Kurum Adı</div>
-              <div class="text-h5 q-mb-sm">{{ companyName }}</div>
-              <div class="text-h6 q-mt-md q-mb-xs shadow-3">Açıklama</div>
-              <div class="text-body1">
-                {{ companyDomain || "Açıklama Yok" }}
-              </div>
-            </q-card-section>
+          <!-- Kurum Bilgileri -->
+          <q-card bordered flat class="q-pa-md text-center">
+            <!-- Resim Alanı -->
+            <q-img
+              @click="triggerFileInput"
+              :src="
+                previewUrl || companyDto.imageUrl || '/images/fupico_logo.jpeg'
+              "
+              alt="Company Logo"
+              style="max-width: 300px; margin: 0 auto"
+              v-if="previewUrl || companyDto.imageUrl"
+            />
+            <q-img
+              src="/images/fupico_logo.jpeg"
+              alt="Default Company Logo"
+              contain
+              ratio="16/9"
+              style="max-width: 300px; margin: 0 auto"
+              v-else
+            />
+
+            <!-- Gizli Dosya Seçici -->
+            <input
+              type="file"
+              ref="fileInput"
+              @change="onFileChange"
+              accept="image/*"
+              style="display: none"
+            />
+
+            <!-- Kurum İsmi -->
+            <div class="q-mt-md q-col-12 q-md-6 q-lg-4 q-px-md q-px-lg q-px-xl">
+              <div class="text-h6 q-mb-xs" style="color: red">Kurum Adı</div>
+              <q-input
+                v-model="companyDto.name"
+                label="Kurum Adı"
+                outlined
+                dense
+                class="text-center"
+                style="text-align: center; font-size: larger; max-width: 100%"
+              />
+            </div>
+
+            <!-- Açıklama -->
+            <div class="q-mt-md q-col-12 q-md-6 q-lg-4 q-px-md q-px-lg q-px-xl">
+              <div class="text-h6 q-mb-xs" style="color: red">Açıklama</div>
+              <q-input
+                v-model="companyDto.domain"
+                label="Açıklama"
+                outlined
+                dense
+                class="text-center"
+                style="text-align: center; font-size: larger; max-width: 100%"
+              />
+            </div>
+            <!-- Değişiklikleri Kaydet Butonu -->
+            <q-btn
+              v-if="isModified"
+              label="Değişiklikleri Kaydet"
+              color="primary"
+              @click="saveChanges"
+              class="q-mt-md"
+            />
           </q-card>
         </div>
       </q-tab-panel>
@@ -105,11 +153,7 @@
         <q-card-section>
           <q-input v-model="selectedGroup.groupName" label="Yemek Grubu Adı" />
           <q-input v-model="selectedGroup.description" label="Açıklama" />
-          <q-file
-            v-model="selectedGroup.image"
-            label="Resim"
-            @change="performUploadImage"
-          />
+          <q-file v-model="selectedGroup.image" label="Resim" />
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="İptal" @click="closeUpdateDialog" />
@@ -127,7 +171,6 @@
     <div v-if="foods.length > 0" class="q-pa-md">
       <h4>Yemekler</h4>
       <div class="row q-gutter-md">
-        <!-- Yemekler için kartlar -->
         <q-card
           v-for="(food, index) in foods"
           :key="index"
@@ -179,11 +222,7 @@
           <q-input v-model="selectedFood.name" label="Yemek Adı" />
           <q-input v-model="selectedFood.description" label="Açıklama" />
           <q-input v-model="selectedFood.price" label="Fiyat" type="number" />
-          <q-file
-            v-model="selectedFood.image"
-            label="Resim"
-            @change="performUploadImage"
-          />
+          <q-file v-model="selectedFood.image" label="Resim" />
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="İptal" @click="closeUpdateFoodDialog" />
@@ -199,59 +238,176 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from "vue";
-import { menu } from "../composables/admin";
+<script setup lang="ts">
+import { ref, watch, onMounted } from "vue";
+import { adminAPIs } from "../composables/admin";
+import { uploadImageAPI } from "../composables/upload";
+const originalCompanyDto = ref({
+  companyId: 0,
+  name: "",
+  domain: "",
+  imageUrl: "",
+});
+const companyDto = ref({
+  companyId: 0,
+  name: "",
+  domain: "",
+  imageUrl: "",
+});
+// Değişiklikleri izlemek için kullanılan flag
+const isModified = ref(false);
+
+watch(
+  [companyDto, originalCompanyDto],
+  ([newVal, oldVal]) => {
+    isModified.value =
+      newVal.name !== originalCompanyDto.value.name ||
+      newVal.domain !== originalCompanyDto.value.domain ||
+      newVal.imageUrl !== originalCompanyDto.value.imageUrl; // imageUrl farkını da izleyelim
+  },
+  { deep: true }
+);
+
+// Verileri kaydetmek için fonksiyon
+const saveChanges = async () => {
+  const payload = {
+    name: companyDto.value.name,
+    domain: companyDto.value.domain,
+    imageUrl: companyDto.value.imageUrl, // Resim URL'sini ekliyoruz
+  };
+
+  const response = await addOrUpdateCompany(payload);
+
+  if (response) {
+    console.log("Şirket başarıyla kaydedildi:", response);
+  } else {
+    console.error("Şirket kaydedilirken hata oluştu.");
+  }
+};
+
+// Sayfa yüklendiğinde orijinal verileri çekiyoruz
 
 // Tab ayarları
 const tab = ref("companyInfo");
 
-const {
-  getCompany,
-  getFoodGroups,
-  deleteFoodGroup,
-  updateFoodGroup,
-  uploadImageAPI,
-  getFoodsByFoodGroupId,
-  deleteFood,
-  updateFood,
-} = menu();
+// Reactive değişkenler tanımlanıyor
+const selectedFile = ref<File | null>(null);
+const previewUrl = ref<string | undefined>(undefined); // string | undefined olarak değiştirildi
+const companyLogoUrl = ref<string | undefined>(
+  localStorage.getItem("companyLogoUrl") || undefined
+); // null yerine undefined
 
-// Şirket bilgileri
-const companyLogoUrl = ref("");
-const companyName = ref("");
-const companyDomain = ref("");
+const isImageDialogOpen = ref(false);
 
+// Dialog açma fonksiyonu
+function openImageDialog() {
+  isImageDialogOpen.value = true;
+}
+
+// Dialog kapama fonksiyonu
+function closeImageDialog() {
+  isImageDialogOpen.value = false;
+}
+
+// Dosya değişiminde çağrılacak fonksiyon
+const onFileChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    selectedFile.value = target.files[0];
+
+    // Ön izleme için FileReader ile base64 formatına çevirme
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      if (e.target?.result) {
+        previewUrl.value = e.target.result as string; // Ön izleme için URL'yi güncelle
+      }
+    };
+    reader.readAsDataURL(selectedFile.value); // Dosyayı base64 formatına çevir
+
+    // Resmi otomatik olarak yükle
+    await uploadImage();
+  } else {
+    console.error("Dosya bulunamadı veya geçersiz.");
+  }
+};
+
+// Resim yükleme ve API'ye istek atma fonksiyonu
+const apiDomain = "https://api.qrmenu.fupico.com"; // API domainini tanımla
+
+const uploadImage = async () => {
+  if (!selectedFile.value) {
+    console.error("Lütfen bir dosya seçin.");
+    return;
+  }
+
+  try {
+    const imageData = await uploadImageAPI(selectedFile.value); // Resmi yükle
+    if (imageData && imageData.imageUrl) {
+      // Eğer gelen imageUrl varsa, tam URL'yi oluştur
+      const fullImageUrl = `${apiDomain}${imageData.imageUrl}`;
+
+      companyLogoUrl.value = fullImageUrl; // Yüklenen tam resim URL'sini güncelle
+      localStorage.setItem("companyLogoUrl", fullImageUrl); // localStorage'ye yaz
+      companyDto.value.imageUrl = fullImageUrl;
+      previewUrl.value = undefined; // Ön izlemeyi sıfırla
+      console.log("Yüklenen resim URL:", fullImageUrl);
+    } else {
+      console.error("Resim URL'si alınamadı.");
+    }
+  } catch (error) {
+    console.error("Resim yükleme hatası:", error);
+  }
+};
+
+const triggerFileInput = () => {
+  if (fileInput.value) {
+    fileInput.value.click(); // Gizli input'u tetikle
+  }
+};
+
+const fileInput = ref<HTMLInputElement | null>(null);
 // Yemek grupları verisi
-const foodGroups = ref([]);
-
-// Yemekler verisi
-const foods = ref([]);
+const foodGroups = ref<Array<any>>([]);
+const foods = ref<Array<any>>([]);
 
 // Dialog durumu
 const isUpdateDialogOpen = ref(false);
 const selectedGroup = ref({
+  foodGroupId: 1,
   groupName: "",
   description: "",
+  imageUrl: "",
   image: null,
 });
 
 const isUpdateFoodDialogOpen = ref(false);
 const selectedFood = ref({
+  foodId: 1,
   name: "",
   description: "",
   price: 0,
   image: null,
 });
 
+// Admin menü fonksiyonları
+const {
+  getCompany,
+  getFoodGroups,
+  deleteFoodGroup,
+  updateFoodGroup,
+  getFoodsByFoodGroupId,
+  deleteFood,
+  updateFood,
+  addOrUpdateCompany,
+} = adminAPIs();
+
 // Şirket verilerini çekme fonksiyonu
 async function fetchCompanyData() {
   try {
     const response = await getCompany();
+
     if (response) {
-      companyLogoUrl.value = response.imageUrl;
-      companyName.value = response.name;
-      companyDomain.value = response.domain;
+      companyDto.value = response;
     }
   } catch (error) {
     console.error("Şirket verileri alınırken hata:", error);
@@ -269,7 +425,7 @@ async function fetchFoodGroups() {
 }
 
 // Yemekleri çekme fonksiyonu
-async function fetchFoods(foodGroupId) {
+async function fetchFoods(foodGroupId: any) {
   try {
     const foodsData = await getFoodsByFoodGroupId(foodGroupId);
     foods.value = foodsData || [];
@@ -279,7 +435,7 @@ async function fetchFoods(foodGroupId) {
 }
 
 // Yemek grubu silme işlemi
-async function handleDeleteFoodGroup(id) {
+async function handleDeleteFoodGroup(id: any) {
   try {
     await deleteFoodGroup(id);
     await fetchFoodGroups(); // Listeyi güncelle
@@ -289,7 +445,7 @@ async function handleDeleteFoodGroup(id) {
 }
 
 // Yemek silme işlemi
-async function handleDeleteFood(id) {
+async function handleDeleteFood(id: number) {
   try {
     await deleteFood(id);
     await fetchFoods(selectedGroup.value.foodGroupId); // Yemek listesini güncelle
@@ -299,7 +455,7 @@ async function handleDeleteFood(id) {
 }
 
 // Güncelleme dialogunu açma
-function openUpdateFoodGroupDialog(group) {
+function openUpdateFoodGroupDialog(group: any) {
   selectedGroup.value = { ...group, image: null };
   isUpdateDialogOpen.value = true;
 }
@@ -318,16 +474,22 @@ async function performUpdateFoodGroup() {
 // Yemek güncelleme işlemi
 async function performUpdateFood() {
   try {
-    await updateFood(selectedFood.value.foodId, selectedFood.value);
-    isUpdateFoodDialogOpen.value = false;
-    await fetchFoods(selectedGroup.value.foodGroupId); // Listeyi güncelle
+    if (selectedFood.value && selectedFood.value.foodId) {
+      await updateFood(selectedFood.value.foodId, selectedFood.value);
+      isUpdateFoodDialogOpen.value = false;
+      if (selectedGroup.value && selectedGroup.value.foodGroupId) {
+        await fetchFoods(selectedGroup.value.foodGroupId); // Listeyi güncelle
+      }
+    } else {
+      console.error("Yemek bilgileri eksik");
+    }
   } catch (error) {
     console.error("Yemek güncellenirken hata:", error);
   }
 }
 
 // Yemek güncelleme dialogunu açma
-function openUpdateFoodDialog(food) {
+function openUpdateFoodDialog(food: any) {
   selectedFood.value = { ...food, image: null };
   isUpdateFoodDialogOpen.value = true;
 }
@@ -340,34 +502,11 @@ function closeUpdateFoodDialog() {
   isUpdateFoodDialogOpen.value = false;
 }
 
-// Resim yükleme işlemi
-async function performUploadImage(file) {
-  try {
-    const imageUrl = await uploadImageApi(file); // İsim değişikliği yapıldı
-    selectedGroup.value.imageUrl = imageUrl; // Resim URL'sini güncelle
-  } catch (error) {
-    console.error("Resim yüklenirken hata:", error);
-  }
-}
-
 // Sayfa yüklendiğinde veriyi çek
 onMounted(async () => {
-  await fetchCompanyData(); // Şirket verilerini yüklüyoruz
-  await fetchFoodGroups(); // Yemek grubu verilerini yüklüyoruz
+  await fetchCompanyData();
+  await fetchFoodGroups();
+  // Orijinal verileri kaydediyoruz
+  originalCompanyDto.value = { ...companyDto.value };
 });
 </script>
-
-<style scoped>
-.q-card {
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.q-card:hover {
-  transform: scale(1.02);
-}
-.q-input {
-  width: 100%;
-}
-</style>
