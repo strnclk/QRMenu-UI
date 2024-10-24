@@ -244,6 +244,36 @@ export function adminAPIs() {
       };
     }
   };
+  const addFood = async (foodDto: any) => {
+    try {
+      let response = await api.post("/Admin/addFood", foodDto, {
+        headers: {
+          "FuPiCo-Security": `Bearer ${localStorage.getItem("accessToken")}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.status === 200 ? response.data : null;
+    } catch (error: any) {
+      const response = error.response;
+
+      if (response && response.status === 401) {
+        router.replace("/unauthorize"); // Yetkisiz hata, kullanıcıyı yetkilendirme sayfasına yönlendir
+        return { ok: "Error" };
+      }
+
+      if (response && response.status === 403) {
+        router.replace("/is-not-auth"); // Yetki reddedildiğinde yönlendirme
+        return { ok: "Error" };
+      }
+
+      return {
+        errors: response
+          ? response.data.errors.errors // API'den dönen spesifik hata mesajları
+          : ["An unexpected error occurred"], // Genel hata mesajı
+      };
+    }
+  };
 
   return {
     getCompany,
@@ -256,5 +286,6 @@ export function adminAPIs() {
     deleteFood,
     addOrUpdateCompany,
     addFoodGroup,
+    addFood,
   };
 }

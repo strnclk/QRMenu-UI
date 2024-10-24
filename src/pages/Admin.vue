@@ -18,81 +18,118 @@
       transition-next="fade-in"
     >
       <!-- Kurum Bilgileri Tabı -->
-      <q-tab-panel name="companyInfo" class="q-pa-md">
-        <div class="company-info text-center q-mb-md">
-          <!-- Kurum Bilgileri -->
-          <q-card bordered flat class="q-pa-md text-center">
-            <!-- Resim Alanı -->
-            <q-img
-              @click="triggerFileInput"
-              :src="
-                previewUrl || companyDto.imageUrl || '/images/fupico_logo.jpeg'
-              "
-              alt="Company Logo"
-              style="max-width: 300px; margin: 0 auto"
-              v-if="previewUrl || companyDto.imageUrl"
-            />
-            <q-img
-              src="/images/fupico_logo.jpeg"
-              alt="Default Company Logo"
-              contain
-              ratio="16/9"
-              style="max-width: 300px; margin: 0 auto"
-              v-else
-            />
+      <q-tab-panel name="companyInfo" class="q-pa-md full-width-panel">
+        <!-- Kurum Bilgileri -->
+        <q-card
+          bordered
+          flat
+          class="q-pa-md text-center"
+          style="max-width: 1500px; width: 100%; margin: 0 auto"
+        >
+          <!-- Resim Alanı -->
+          <q-img
+            @click="triggerFileInput"
+            :src="
+              previewUrl || companyDto.imageUrl || '/images/fupico_logo.jpeg'
+            "
+            alt="Company Logo"
+            style="
+              width: 100%;
+              max-width: 800px;
+              height: 100%; /* Yüksekliği %100 yaparak tam görünmesini sağlıyoruz */
+              min-height: 400px; /* Minimum bir yükseklik belirliyoruz */
+              object-fit: cover; /* Resmi boyutuna göre kesmeden orantılı bir şekilde doldur */
+              margin: 0 auto;
+              cursor: pointer;
+            "
+            v-if="previewUrl || companyDto.imageUrl"
+          />
 
-            <!-- Gizli Dosya Seçici -->
-            <input
-              type="file"
-              ref="fileInput"
-              @change="onFileChange"
-              accept="image/*"
-              style="display: none"
-            />
+          <q-img
+            src="/images/fupico_logo.jpeg"
+            alt="Default Company Logo"
+            contain
+            ratio="1"
+            style="max-width: 800px; margin: 0 auto; height: 100%; width: 100%"
+            v-else
+          />
+
+          <!-- Gizli Dosya Seçici -->
+          <input
+            type="file"
+            ref="fileInput"
+            @change="onFileChange"
+            accept="image/*"
+            style="display: none"
+          />
+
+          <div
+            class="info-container"
+            style="
+              width: 100%;
+              max-width: 1000px;
+              margin: 0 auto;
+              text-align: center;
+            "
+          >
             <!-- Açıklama -->
-            <div class="q-mt-md q-col-12 q-md-6 q-lg-4 q-px-md q-px-lg q-px-xl">
-              <!-- <div class="text-h6 q-mb-xs" style="color: red">Menüye Git</div> -->
-              <a
-                :href="companyDto.domain"
-                target="_blank"
-                style="
-                  text-align: center;
-                  font-size: larger;
-                  display: block;
-                  text-decoration: none;
-                "
-              >
-                <q-btn
-                  label="Menüye Git"
-                  outline
-                  class="q-py-md"
-                  style="width: 100%; font-size: larger; max-width: 100%"
-                />
-              </a>
-            </div>
-            <!-- Kurum İsmi -->
-            <div class="q-mt-md q-col-12 q-md-6 q-lg-4 q-px-md q-px-lg q-px-xl">
-              <div class="text-h6 q-mb-xs" style="color: red">Kurum Adı</div>
-              <q-input
-                v-model="companyDto.name"
-                label="Kurum Adı"
-                outlined
-                dense
-                class="text-center"
-                style="text-align: center; font-size: larger; max-width: 100%"
+            <a
+              :href="companyDto.domain"
+              target="_blank"
+              style="margin-top: 15px; display: block; text-decoration: none"
+            >
+              <q-btn
+                label="Menüye Git"
+                outline
+                class="q-py-md"
+                style="width: 100%; font-size: larger"
               />
-            </div>
+            </a>
 
-            <!-- Değişiklikleri Kaydet Butonu -->
-            <q-btn
-              v-if="isModified"
-              label="Değişiklikleri Kaydet"
-              color="primary"
-              @click="saveChanges"
-              class="q-mt-md"
+            <!-- Kurum Adı -->
+            <div class="text-h6 q-mb-xs" style="color: red; margin-top: 15px">
+              Kurum Adı
+            </div>
+            <q-input
+              v-model="companyDto.name"
+              label="Kurum Adı"
+              outlined
+              dense
+              class="text-center"
+              style="font-size: larger; width: 100%"
             />
-          </q-card>
-        </div>
+
+            <!-- Linki Göster ve Kopyala -->
+            <q-input
+              v-model="companyDto.domain"
+              label="Menü Linki"
+              outlined
+              dense
+              readonly
+              class="q-pa-md"
+              style="margin-top: 10px; font-size: larger; width: 100%"
+            >
+              <!-- Append icon for copy function -->
+              <template v-slot:append>
+                <q-icon
+                  name="content_copy"
+                  @click="copyLink"
+                  style="cursor: pointer"
+                />
+              </template>
+            </q-input>
+          </div>
+
+          <!-- Değişiklikleri Kaydet Butonu -->
+          <q-btn
+            v-if="isModified"
+            label="Değişiklikleri Kaydet"
+            color="primary"
+            @click="saveChanges"
+            class="q-mt-md"
+            style="max-width: 1000px; margin: 0 auto"
+          />
+        </q-card>
       </q-tab-panel>
 
       <!-- Yemek Grupları Düzenleme Tabı -->
@@ -101,13 +138,22 @@
 
         <!-- Yeni Gıda Grubu Ekle Butonu -->
         <q-btn
+          v-if="isFoodGroupVisible"
           label="Yeni Menü Grubu Ekle"
           color="primary"
           icon="add"
           @click="openAddMenuGroupDialog"
           class="q-mb-md"
         />
-
+        <!-- Yeni Gıda Grubu Ekle Butonu -->
+        <q-btn
+          v-if="!isFoodGroupVisible"
+          label="Menüye Yeni Yemek Ekle"
+          color="primary"
+          icon="add"
+          @click="openAddMenuFoodDialog"
+          class="q-mb-md"
+        />
         <!-- Mevcut Yemek Grupları -->
         <div
           v-if="foodGroups.length > 0 && isFoodGroupVisible"
@@ -200,6 +246,7 @@
                 />
                 <q-input
                   v-model="newMenuGroup.description"
+                  style="margin-top: 5px"
                   label="Açıklama"
                   outlined
                 />
@@ -231,16 +278,33 @@
                   color="primary"
                   @click="triggerMenuGroupFileInput"
                   class="q-mt-md"
+                  style="
+                    width: 100%;
+                    max-width: 300px;
+                    font-size: 20px;
+                    display: block;
+                    margin: 20px auto;
+                  "
                 />
               </q-card-section>
-
               <q-card-actions align="right">
-                <q-btn flat label="İptal" @click="closeAddMenuGroupDialog" />
+                <q-btn
+                  flat
+                  label="İptal"
+                  @click="closeAddMenuGroupDialog"
+                  style="
+                    width: 100px;
+                    height: 50px;
+                    font-size: 18px;
+                    margin-right: 10px;
+                  "
+                />
                 <q-btn
                   flat
                   label="Kaydet"
                   color="primary"
                   @click="saveMenuGroup"
+                  style="width: 100px; height: 50px; font-size: 18px"
                 />
               </q-card-actions>
             </q-card>
@@ -250,11 +314,11 @@
           <div v-if="foods.length > 0 && !isFoodGroupVisible" class="q-pa-md">
             <div class="text-center text-h6 q-mb-md"><h4>Yemekler</h4></div>
 
-            <div class="row q-gutter-md">
+            <div class="row q-gutter-md justify-center">
               <q-card
                 v-for="(food, index) in foods"
                 :key="index"
-                class="col-12 col-sm-6 col-md-2 q-mb-md"
+                class="col-12 col-sm-6 col-md-3 col-lg-2 q-mb-md"
                 bordered
                 flat
               >
@@ -301,96 +365,201 @@
         </div>
       </q-tab-panel>
     </q-tab-panels>
+
+    <!-- Yemek Grubu Ekleme Dialog -->
+    <q-dialog
+      v-model="isAddMenuGroupDialogOpen"
+      persistent
+      class="custom-dialog"
+    >
+      <q-card style="max-width: 800px; width: 100%">
+        <q-card-section>
+          <div class="text-h6">Yeni Menü Grubu Ekle</div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-input v-model="newMenuGroup.groupName" label="Grup Adı" outlined />
+          <q-input
+            v-model="newMenuGroup.description"
+            label="Açıklama"
+            outlined
+          />
+
+          <!-- Resim Yükleme ve Önizleme -->
+          <q-img
+            v-if="previewMenuGroupImageUrl"
+            :src="previewMenuGroupImageUrl"
+            alt="Preview Image"
+            contain
+            style="max-width: 100%; margin-top: 16px"
+            @click="triggerMenuGroupFileInput"
+          />
+
+          <!-- Gizli Dosya Seçici -->
+          <input
+            type="file"
+            ref="menuGroupFileInput"
+            @change="onMenuGroupFileChange"
+            accept="image/*"
+            style="display: none"
+          />
+
+          <!-- Resim Seçme Butonu -->
+          <q-btn
+            flat
+            label="Resim Ekle"
+            icon="add_a_photo"
+            color="primary"
+            @click="triggerMenuGroupFileInput"
+            class="q-mt-md"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="İptal" @click="closeAddMenuGroupDialog" />
+          <q-btn flat label="Kaydet" color="primary" @click="saveMenuGroup" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Yemek Grubu Güncelleme Dialog -->
+    <q-dialog v-model="isUpdateDialogOpen" class="custom-dialog">
+      <q-card style="max-width: 800px; width: 100%">
+        <q-card-section>
+          <div class="text-h6">Yemek Grubunu Güncelle</div>
+        </q-card-section>
+        <q-card-section>
+          <!-- Resim Önizleme Alanı -->
+          <q-img
+            v-if="imagePreviewUrl"
+            :src="imagePreviewUrl"
+            alt="Preview Image"
+            contain
+            class="dialog-img-preview"
+            @click="triggerFileInputForGroup"
+          />
+          <!-- Gizli Dosya Seçici -->
+          <input
+            type="file"
+            ref="fileInputForGroup"
+            @change="onFileChangeForGroup"
+            accept="image/*"
+            style="display: none"
+          />
+          <q-input v-model="selectedGroup.groupName" label="Yemek Grubu Adı" />
+          <q-input v-model="selectedGroup.description" label="Açıklama" />
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="İptal" @click="closeUpdateDialog" />
+          <q-btn
+            flat
+            label="Güncelle"
+            color="primary"
+            @click="performUpdateFoodGroup"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Yemek Güncelleme Dialog -->
+    <q-dialog v-model="isAddMenuFoodDialogOpen" persistent>
+      <q-card style="max-width: 800px; width: 100%">
+        <q-card-section>
+          <div class="text-h6">Yeni Yemek Ekle</div>
+        </q-card-section>
+
+        <q-card-section>
+          <!-- Yemek Adı -->
+
+          <q-input
+            style="max-width: 100%; margin-top: 16px"
+            v-model="newFood.name"
+            label="Yemek Adı"
+            outlined
+            required
+          />
+
+          <!-- Yemek Açıklaması -->
+
+          <q-input
+            style="max-width: 100%; margin-top: 16px"
+            v-model="newFood.description"
+            label="Açıklama"
+            outlined
+          />
+
+          <!-- Yemek Fiyatı -->
+          <q-input
+            v-model="newFood.price"
+            label="Fiyat"
+            type="number"
+            outlined
+            style="max-width: 100%; margin-top: 16px"
+            required
+          />
+
+          <!-- Resim Yükleme ve Önizleme -->
+          <q-img
+            v-if="previewFoodImageUrl"
+            :src="previewFoodImageUrl"
+            alt="Preview Image"
+            contain
+            style="max-width: 100%; margin-top: 16px"
+            @click="triggerMenuFoodFileInput"
+          />
+
+          <!-- Gizli Dosya Seçici -->
+          <input
+            type="file"
+            ref="menuFoodFileInput"
+            @change="onMenuFoodFileChange"
+            accept="image/*"
+            style="display: none"
+          />
+
+          <!-- Resim Seçme Butonu -->
+
+          <q-btn
+            flat
+            label="Resim Ekle"
+            icon="add_a_photo"
+            color="primary"
+            @click="triggerMenuFoodFileInput"
+            class="q-mt-md"
+            style="
+              width: 100%;
+              max-width: 300px;
+              font-size: 20px;
+              display: block;
+              margin: 20px auto;
+            "
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            label="İptal"
+            @click="closeAddMenuFoodDialog"
+            style="
+              width: 100px;
+              height: 50px;
+              font-size: 18px;
+              margin-right: 10px;
+            "
+          />
+          <q-btn
+            flat
+            label="Kaydet"
+            color="primary"
+            @click="saveMenuFood"
+            style="width: 100px; height: 50px; font-size: 18px"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 
-  <!-- Yemek Grubu Ekleme Dialog -->
-  <q-dialog v-model="isAddMenuGroupDialogOpen" persistent class="custom-dialog">
-    <q-card style="max-width: 800px; width: 100%">
-      <q-card-section>
-        <div class="text-h6">Yeni Menü Grubu Ekle</div>
-      </q-card-section>
-
-      <q-card-section>
-        <q-input v-model="newMenuGroup.groupName" label="Grup Adı" outlined />
-        <q-input v-model="newMenuGroup.description" label="Açıklama" outlined />
-
-        <!-- Resim Yükleme ve Önizleme -->
-        <q-img
-          v-if="previewMenuGroupImageUrl"
-          :src="previewMenuGroupImageUrl"
-          alt="Preview Image"
-          contain
-          style="max-width: 100%; margin-top: 16px"
-          @click="triggerMenuGroupFileInput"
-        />
-
-        <!-- Gizli Dosya Seçici -->
-        <input
-          type="file"
-          ref="menuGroupFileInput"
-          @change="onMenuGroupFileChange"
-          accept="image/*"
-          style="display: none"
-        />
-
-        <!-- Resim Seçme Butonu -->
-        <q-btn
-          flat
-          label="Resim Ekle"
-          icon="add_a_photo"
-          color="primary"
-          @click="triggerMenuGroupFileInput"
-          class="q-mt-md"
-        />
-      </q-card-section>
-
-      <q-card-actions align="right">
-        <q-btn flat label="İptal" @click="closeAddMenuGroupDialog" />
-        <q-btn flat label="Kaydet" color="primary" @click="saveMenuGroup" />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-
-  <!-- Yemek Grubu Güncelleme Dialog -->
-  <q-dialog v-model="isUpdateDialogOpen" class="custom-dialog">
-    <q-card style="max-width: 800px; width: 100%">
-      <q-card-section>
-        <div class="text-h6">Yemek Grubunu Güncelle</div>
-      </q-card-section>
-      <q-card-section>
-        <!-- Resim Önizleme Alanı -->
-        <q-img
-          v-if="imagePreviewUrl"
-          :src="imagePreviewUrl"
-          alt="Preview Image"
-          contain
-          class="dialog-img-preview"
-          @click="triggerFileInputForGroup"
-        />
-        <!-- Gizli Dosya Seçici -->
-        <input
-          type="file"
-          ref="fileInputForGroup"
-          @change="onFileChangeForGroup"
-          accept="image/*"
-          style="display: none"
-        />
-        <q-input v-model="selectedGroup.groupName" label="Yemek Grubu Adı" />
-        <q-input v-model="selectedGroup.description" label="Açıklama" />
-      </q-card-section>
-      <q-card-actions align="right">
-        <q-btn flat label="İptal" @click="closeUpdateDialog" />
-        <q-btn
-          flat
-          label="Güncelle"
-          color="primary"
-          @click="performUpdateFoodGroup"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-
-  <!-- Yemek Güncelleme Dialog -->
   <q-dialog v-model="isUpdateFoodDialogOpen" class="custom-dialog">
     <q-card style="max-width: 800px; width: 100%">
       <q-card-section>
@@ -435,6 +604,89 @@ import { ref, watch, onMounted } from "vue";
 import { adminAPIs } from "../composables/admin";
 import { uploadImageAPI } from "../composables/upload";
 import { Notify } from "quasar";
+
+const isAddMenuFoodDialogOpen = ref(false);
+const newFood = ref({
+  name: "",
+  description: "",
+  price: 0,
+  imageUrl: "",
+  foodGroupId: 1, // Seçilen menü grubunun ID'si
+});
+
+const previewFoodImageUrl = ref("");
+const menuFoodFileInput = ref<HTMLInputElement | null>(null); // Tipi belirledik
+
+const openAddMenuFoodDialog = () => {
+  isAddMenuFoodDialogOpen.value = true;
+};
+
+const closeAddMenuFoodDialog = () => {
+  resetNewFoodForm(); // Formu sıfırlıyoruz
+  isAddMenuFoodDialogOpen.value = false;
+};
+const resetNewFoodForm = () => {
+  newFood.value = {
+    name: "",
+    description: "",
+    price: 0,
+    imageUrl: "",
+    foodGroupId: 1,
+  };
+  previewFoodImageUrl.value = ""; // Resim önizlemesini de sıfırlıyoruz
+};
+const triggerMenuFoodFileInput = () => {
+  // menuFoodFileInput'ın tanımlı olup olmadığını kontrol ediyoruz
+  if (menuFoodFileInput.value) {
+    menuFoodFileInput.value.click();
+  }
+};
+
+const onMenuFoodFileChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files ? target.files[0] : null;
+
+  if (file) {
+    // Görseli yükleyip önizleme URL'sini ayarlıyoruz
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewFoodImageUrl.value = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+
+    // Görseli backend'e yükleyip URL'yi alıyoruz
+    const uploadedImageUrl = await uploadImageAPI(file);
+    const fullImageUrlFood = `${apiDomain}${uploadedImageUrl.imageUrl}`;
+    if (uploadedImageUrl) {
+      newFood.value.imageUrl = fullImageUrlFood; // API'den gelen resim URL'si
+    }
+  }
+};
+
+const saveMenuFood = async () => {
+  try {
+    // Seçili gıda grubunu ekle
+    const storedFoodGroupId = localStorage.getItem(
+      "selectedFoodGroupIdForNewFood"
+    );
+
+    if (storedFoodGroupId) {
+      newFood.value.foodGroupId = parseInt(storedFoodGroupId); // localStorage'den gelen ID'yi kullanıyoruz
+    }
+
+    // API'ye POST isteği atıyoruz
+    const result = await addFood(newFood.value);
+    await fetchFoods(newFood.value.foodGroupId);
+    if (result) {
+      closeAddMenuFoodDialog();
+      // Gıdaları yenileme işlemi burada yapılabilir
+      localStorage.removeItem("selectedFoodGroupIdForNewFood");
+    }
+  } catch (error) {
+    console.error("Yemek eklenirken bir hata oluştu:", error);
+  }
+};
+
 // Yemek grubu için seçilen dosya ve önizleme URL'si
 
 // Menü Grubu Verisi
@@ -751,6 +1003,11 @@ const performUpdateFood = async () => {
 const fetchFoods = async (foodGroupId: any) => {
   try {
     const foodsData = await getFoodsByFoodGroupId(foodGroupId);
+    localStorage.setItem(
+      "selectedFoodGroupIdForNewFood",
+      foodGroupId.toString()
+    );
+
     if (foodsData) {
       foods.value = foodsData;
       isFoodGroupVisible.value = false; // Yemekler görünsün, gruplar gizlensin
@@ -864,7 +1121,27 @@ const foodGroups = ref<Array<any>>([]);
 
 // Dialog durumu
 const isUpdateDialogOpen = ref(false);
-
+const copyLink = () => {
+  const link = companyDto.value.domain;
+  navigator.clipboard
+    .writeText(link)
+    .then(() => {
+      // Başarılı bildirim
+      Notify.create({
+        message: "Link kopyalandı!",
+        color: "positive",
+        timeout: 2000,
+      });
+    })
+    .catch(() => {
+      // Hata bildirimi
+      Notify.create({
+        message: "Link kopyalanamadı!",
+        color: "negative",
+        timeout: 2000,
+      });
+    });
+};
 // Admin menü fonksiyonları
 const {
   getCompany,
@@ -876,6 +1153,7 @@ const {
   updateFood,
   addOrUpdateCompany,
   addFoodGroup,
+  addFood,
 } = adminAPIs();
 
 // Şirket verilerini çekme fonksiyonu
@@ -1022,25 +1300,18 @@ onMounted(async () => {
 }
 
 .q-card {
-  max-height: 450px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  max-width: 500px;
-  margin: auto;
-  margin-bottom: 5px;
+  width: 400px;
 }
 
 .q-img {
   display: block;
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  margin: 0 auto;
-}
-
-.q-dialog .q-card {
-  max-width: 600px;
+  width: 270px;
+  height: 270px;
+  object-fit: contain;
+  margin: auto;
 }
 
 .q-dialog .q-card-section {
@@ -1064,5 +1335,11 @@ onMounted(async () => {
 .custom-dialog .q-dialog__inner {
   justify-content: center; /* Diyaloğun yukarıda değil, ortada açılmasını sağlar */
   align-items: center;
+}
+
+.q-input__inner {
+  white-space: nowrap; /* Metni tek satırda tut */
+  overflow: hidden; /* Taşan kısmı gizle */
+  text-overflow: ellipsis; /* Çok uzun olduğunda üç nokta ile kes */
 }
 </style>
