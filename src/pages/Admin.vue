@@ -49,7 +49,27 @@
               accept="image/*"
               style="display: none"
             />
-
+            <!-- Açıklama -->
+            <div class="q-mt-md q-col-12 q-md-6 q-lg-4 q-px-md q-px-lg q-px-xl">
+              <!-- <div class="text-h6 q-mb-xs" style="color: red">Menüye Git</div> -->
+              <a
+                :href="companyDto.domain"
+                target="_blank"
+                style="
+                  text-align: center;
+                  font-size: larger;
+                  display: block;
+                  text-decoration: none;
+                "
+              >
+                <q-btn
+                  label="Menüye Git"
+                  outline
+                  class="q-py-md"
+                  style="width: 100%; font-size: larger; max-width: 100%"
+                />
+              </a>
+            </div>
             <!-- Kurum İsmi -->
             <div class="q-mt-md q-col-12 q-md-6 q-lg-4 q-px-md q-px-lg q-px-xl">
               <div class="text-h6 q-mb-xs" style="color: red">Kurum Adı</div>
@@ -63,18 +83,6 @@
               />
             </div>
 
-            <!-- Açıklama -->
-            <div class="q-mt-md q-col-12 q-md-6 q-lg-4 q-px-md q-px-lg q-px-xl">
-              <div class="text-h6 q-mb-xs" style="color: red">Açıklama</div>
-              <q-input
-                v-model="companyDto.domain"
-                label="Açıklama"
-                outlined
-                dense
-                class="text-center"
-                style="text-align: center; font-size: larger; max-width: 100%"
-              />
-            </div>
             <!-- Değişiklikleri Kaydet Butonu -->
             <q-btn
               v-if="isModified"
@@ -90,6 +98,25 @@
       <!-- Yemek Grupları Düzenleme Tabı -->
       <q-tab-panel name="edit" class="q-pa-md">
         <div class="text-center text-h6 q-mb-md">Yemek Yönetimi</div>
+
+        <!-- Yeni Gıda Grubu Ekle Butonu -->
+        <q-btn
+          label="Yeni Menü Grubu Ekle"
+          color="primary"
+          icon="add"
+          @click="openAddMenuGroupDialog"
+          class="q-mb-md"
+        />
+
+        <!-- Mevcut Yemek Grupları -->
+        <div
+          v-if="foodGroups.length > 0 && isFoodGroupVisible"
+          class="row q-gutter-md justify-center"
+          style="margin: 0 auto; max-width: 100%"
+        >
+          <!-- Food Group Cards (Zaten mevcut) -->
+          <!-- ... -->
+        </div>
 
         <!-- Geri dön butonu -->
         <q-btn
@@ -155,6 +182,69 @@
               </q-card-section>
             </q-card>
           </div>
+          <q-dialog
+            v-model="isAddMenuGroupDialogOpen"
+            persistent
+            class="custom-dialog"
+          >
+            <q-card style="max-width: 800px; width: 100%">
+              <q-card-section>
+                <div class="text-h6">Yeni Menü Grubu Ekle</div>
+              </q-card-section>
+
+              <q-card-section>
+                <q-input
+                  v-model="newMenuGroup.groupName"
+                  label="Grup Adı"
+                  outlined
+                />
+                <q-input
+                  v-model="newMenuGroup.description"
+                  label="Açıklama"
+                  outlined
+                />
+
+                <!-- Resim Yükleme ve Önizleme -->
+                <q-img
+                  v-if="previewMenuGroupImageUrl"
+                  :src="previewMenuGroupImageUrl"
+                  alt="Preview Image"
+                  contain
+                  style="max-width: 100%; margin-top: 16px"
+                  @click="triggerMenuGroupFileInput"
+                />
+
+                <!-- Gizli Dosya Seçici -->
+                <input
+                  type="file"
+                  ref="menuGroupFileInput"
+                  @change="onMenuGroupFileChange"
+                  accept="image/*"
+                  style="display: none"
+                />
+
+                <!-- Resim Seçme Butonu -->
+                <q-btn
+                  flat
+                  label="Resim Ekle"
+                  icon="add_a_photo"
+                  color="primary"
+                  @click="triggerMenuGroupFileInput"
+                  class="q-mt-md"
+                />
+              </q-card-section>
+
+              <q-card-actions align="right">
+                <q-btn flat label="İptal" @click="closeAddMenuGroupDialog" />
+                <q-btn
+                  flat
+                  label="Kaydet"
+                  color="primary"
+                  @click="saveMenuGroup"
+                />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
 
           <!-- Yemek Listesi -->
           <div v-if="foods.length > 0 && !isFoodGroupVisible" class="q-pa-md">
@@ -213,10 +303,57 @@
     </q-tab-panels>
   </div>
 
+  <!-- Yemek Grubu Ekleme Dialog -->
+  <q-dialog v-model="isAddMenuGroupDialogOpen" persistent class="custom-dialog">
+    <q-card style="max-width: 800px; width: 100%">
+      <q-card-section>
+        <div class="text-h6">Yeni Menü Grubu Ekle</div>
+      </q-card-section>
+
+      <q-card-section>
+        <q-input v-model="newMenuGroup.groupName" label="Grup Adı" outlined />
+        <q-input v-model="newMenuGroup.description" label="Açıklama" outlined />
+
+        <!-- Resim Yükleme ve Önizleme -->
+        <q-img
+          v-if="previewMenuGroupImageUrl"
+          :src="previewMenuGroupImageUrl"
+          alt="Preview Image"
+          contain
+          style="max-width: 100%; margin-top: 16px"
+          @click="triggerMenuGroupFileInput"
+        />
+
+        <!-- Gizli Dosya Seçici -->
+        <input
+          type="file"
+          ref="menuGroupFileInput"
+          @change="onMenuGroupFileChange"
+          accept="image/*"
+          style="display: none"
+        />
+
+        <!-- Resim Seçme Butonu -->
+        <q-btn
+          flat
+          label="Resim Ekle"
+          icon="add_a_photo"
+          color="primary"
+          @click="triggerMenuGroupFileInput"
+          class="q-mt-md"
+        />
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="İptal" @click="closeAddMenuGroupDialog" />
+        <q-btn flat label="Kaydet" color="primary" @click="saveMenuGroup" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
   <!-- Yemek Grubu Güncelleme Dialog -->
-  <!-- Yemek Grubu Güncelleme Dialog -->
-  <q-dialog v-model="isUpdateDialogOpen" class="wide-dialog">
-    <q-card class="wide-card">
+  <q-dialog v-model="isUpdateDialogOpen" class="custom-dialog">
+    <q-card style="max-width: 800px; width: 100%">
       <q-card-section>
         <div class="text-h6">Yemek Grubunu Güncelle</div>
       </q-card-section>
@@ -254,8 +391,8 @@
   </q-dialog>
 
   <!-- Yemek Güncelleme Dialog -->
-  <q-dialog v-model="isUpdateFoodDialogOpen" class="wide-dialog">
-    <q-card class="wide-card">
+  <q-dialog v-model="isUpdateFoodDialogOpen" class="custom-dialog">
+    <q-card style="max-width: 800px; width: 100%">
       <q-card-section>
         <div class="text-h6">Yemeği Güncelle</div>
       </q-card-section>
@@ -300,6 +437,117 @@ import { uploadImageAPI } from "../composables/upload";
 import { Notify } from "quasar";
 // Yemek grubu için seçilen dosya ve önizleme URL'si
 
+// Menü Grubu Verisi
+interface MenuGroup {
+  companyId: number;
+  groupName: string;
+  description: string;
+  imageUrl: string | null;
+}
+
+// newMenuGroup'u bu tip ile tanımlıyoruz
+const newMenuGroup = ref<MenuGroup>({
+  companyId: 0,
+  groupName: "",
+  description: "",
+  imageUrl: null, // Başlangıçta imageUrl null olabilir
+});
+
+// Resim Önizlemesi ve Dosya
+const previewMenuGroupImageUrl = ref(""); // Önizleme URL'si
+const selectedMenuGroupFile = ref<File | null>(null); // Seçilen dosya
+
+// Dialog Kontrol
+const isAddMenuGroupDialogOpen = ref(false);
+
+// Dialogu açma ve kapatma
+const openAddMenuGroupDialog = () => {
+  isAddMenuGroupDialogOpen.value = true;
+};
+
+const closeAddMenuGroupDialog = () => {
+  isAddMenuGroupDialogOpen.value = false;
+  newMenuGroup.value = {
+    companyId: 0,
+    groupName: "",
+    description: "",
+    imageUrl: null,
+  };
+  previewMenuGroupImageUrl.value = "";
+  selectedMenuGroupFile.value = null;
+};
+
+// Resim seçildiğinde tetiklenen fonksiyon
+const onMenuGroupFileChange = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files[0]) {
+    selectedMenuGroupFile.value = input.files[0]; // Dosyayı seç
+    previewMenuGroupImageUrl.value = URL.createObjectURL(input.files[0]); // Önizleme URL'si oluştur
+    uploadSelectedMenuGroupImage(); // Resmi yükleme fonksiyonu çağrılıyor
+  }
+};
+
+// Resim yükleme işlemi
+const uploadSelectedMenuGroupImage = async () => {
+  if (selectedMenuGroupFile.value) {
+    // Resmi API'ye yüklüyoruz
+    const uploadedImageUrl = await uploadImageAPI(selectedMenuGroupFile.value);
+
+    if (uploadedImageUrl) {
+      let fullImageUrl = uploadedImageUrl;
+
+      // uploadedImageUrl'in tam bir URL olup olmadığını kontrol ediyoruz
+      if (!uploadedImageUrl.imageUrl.startsWith("http")) {
+        // Eğer tam URL değilse, başına apiDomain ekliyoruz
+        fullImageUrl = `${apiDomain}${uploadedImageUrl.imageUrl}`;
+      }
+
+      // Resim URL'sini localStorage'e kaydediyoruz
+      localStorage.setItem("newfoodGroupImageUrl", fullImageUrl);
+      // Ayrıca resim URL'sini modele ekliyoruz
+      newMenuGroup.value.imageUrl = fullImageUrl;
+    }
+  }
+};
+
+// Resim dosyası seçme tetikleyicisi
+const triggerMenuGroupFileInput = () => {
+  const fileInput = document.querySelector(
+    'input[type="file"]'
+  ) as HTMLInputElement;
+  fileInput.click();
+};
+
+// Menü grubunu kaydetme işlemi
+const saveMenuGroup = async () => {
+  // Şirket ID'sini newMenuGroup'a atıyoruz
+  newMenuGroup.value.companyId = originalCompanyDto.value.companyId;
+
+  // Eğer Şirket ID yoksa hata mesajı ver ve işlemi durdur
+  if (!newMenuGroup.value.companyId) {
+    console.error("Şirket ID'si bulunamadı.");
+    return;
+  }
+
+  try {
+    // imageUrl'nin string olup olmadığını kontrol ediyoruz ve başına apiDomain ekliyoruz
+
+    newMenuGroup.value.imageUrl = `${newMenuGroup.value.imageUrl}`;
+
+    // API'ye menü grubu ekleme isteği gönderiliyor
+    const result = await addFoodGroup(newMenuGroup.value);
+
+    if (result) {
+      // Menü grubu başarıyla eklendiyse dialogu kapat ve menü gruplarını yeniden getir
+      closeAddMenuGroupDialog();
+      await fetchFoodGroups();
+    } else {
+      console.error("Menü grubu eklenirken bir hata oluştu");
+    }
+  } catch (error) {
+    console.error("API hatası:", error);
+  }
+};
 const selectedImageFileForGroup = ref<File | null>(null); // Yemek grubu için seçilen dosya
 
 // selectedGroup değişkeni, imageUrl özelliği ile birlikte tanımlandı
@@ -327,6 +575,7 @@ const companyDto = ref({
   domain: "",
   imageUrl: "",
 });
+
 // Dosya değiştiğinde ön izleme yapacak fonksiyon
 const onFileChangeForGroup = async (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -442,24 +691,6 @@ const onFileChange = async (event: Event) => {
 // Resim yükleme ve API'ye istek atma fonksiyonu
 const apiDomain = "https://api.qrmenu.fupico.com"; // API domainini tanımla
 // Resim yükleme işlemi
-const uploadImageForGroup = async () => {
-  if (!selectedImageFileForGroup.value) {
-    return null; // Resim yüklenmedi ise null döndür
-  }
-
-  try {
-    const imageData = await uploadImageAPI(selectedImageFileForGroup.value);
-    if (imageData && imageData.imageUrl) {
-      return imageData.imageUrl; // Yüklenen resim URL'sini döndür
-    } else {
-      console.error("Resim URL'si alınamadı.");
-      return null;
-    }
-  } catch (error) {
-    console.error("Resim yükleme hatası:", error);
-    return null;
-  }
-};
 
 const uploadImage = async () => {
   if (!selectedFile.value) {
@@ -528,6 +759,11 @@ const fetchFoods = async (foodGroupId: any) => {
       console.error("Yemek verisi bulunamadı.");
       foods.value = [];
     }
+    if (localStorage.getItem("foodImageUrl")) {
+      // Eğer varsa, sil
+      localStorage.removeItem("foodImageUrl");
+    }
+    selectedImageFileForFood.value = null;
   } catch (error: any) {
     console.error(
       "Yemekler alınırken hata oluştu:",
@@ -639,6 +875,7 @@ const {
   deleteFood,
   updateFood,
   addOrUpdateCompany,
+  addFoodGroup,
 } = adminAPIs();
 
 // Şirket verilerini çekme fonksiyonu
@@ -659,6 +896,11 @@ const fetchFoodGroups = async () => {
   try {
     const groupsData = await getFoodGroups();
     foodGroups.value = groupsData || [];
+    if (localStorage.getItem("foodGroupImageUrl")) {
+      // Eğer varsa, sil
+      localStorage.removeItem("foodGroupImageUrl");
+    }
+    selectedImageFileForGroup.value = null;
   } catch (error) {
     console.error("Yemek grupları alınırken hata:", error);
   }
@@ -779,11 +1021,6 @@ onMounted(async () => {
   max-width: 1600px;
 }
 
-.q-dialog {
-  max-width: 600px;
-  max-height: 1000px;
-}
-
 .q-card {
   max-height: 450px;
   display: flex;
@@ -814,75 +1051,18 @@ onMounted(async () => {
   justify-content: flex-end;
 }
 
-/* Yemek grubu ve yemek güncelleme dialoglarının genişlik ve yükseklik ayarları */
-.wide-dialog .q-card {
-  max-width: 400px;
-  max-height: 90vh;
-  min-height: 60vh;
+.custom-dialog .q-dialog {
+  max-width: 800px;
+  width: 100%;
 }
 
-.wide-card {
-  min-width: 300px;
-  min-height: 200px;
+.custom-dialog .q-card {
+  max-height: 90vh; /* Card'ın çok büyük ekranlarda maksimum yüksekliğini ayarla */
+  margin: auto; /* Ortalamak için */
 }
 
-.dialog-img-preview {
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  margin: 10px auto;
-}
-
-/* Responsive adjustments for smaller screens (mobile and tablets) */
-@media screen and (max-width: 1024px) {
-  /* Kart genişliği ve yüksekliği orta ekranlar için */
-  .q-dialog,
-  .q-card {
-    max-width: 90%;
-    max-height: 80vh;
-  }
-
-  .q-img,
-  .dialog-img-preview {
-    width: 150px;
-    height: 150px;
-  }
-
-  .wide-dialog .q-card {
-    max-width: 80%;
-    min-height: 50vh;
-  }
-
-  .wide-card {
-    min-width: 250px;
-  }
-}
-
-@media screen and (max-width: 600px) {
-  /* Kart genişliği ve yüksekliği mobil cihazlar için */
-  .q-dialog,
-  .q-card {
-    max-width: 100%;
-    max-height: 90vh;
-  }
-
-  .q-img,
-  .dialog-img-preview {
-    width: 120px;
-    height: 120px;
-  }
-
-  .wide-dialog .q-card {
-    max-width: 100%;
-    min-height: 50vh;
-  }
-
-  .wide-card {
-    min-width: 100%;
-  }
-
-  .q-dialog .q-card-actions {
-    justify-content: center; /* Mobilde butonları ortaya al */
-  }
+.custom-dialog .q-dialog__inner {
+  justify-content: center; /* Diyaloğun yukarıda değil, ortada açılmasını sağlar */
+  align-items: center;
 }
 </style>

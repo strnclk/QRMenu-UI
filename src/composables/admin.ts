@@ -218,6 +218,32 @@ export function adminAPIs() {
       return null;
     }
   };
+  const addFoodGroup = async (foodGroupDto: any) => {
+    try {
+      let response = await api.post("/Admin/addFoodGroup", foodGroupDto, {
+        headers: {
+          "FuPiCo-Security": `Bearer ${localStorage.getItem("accessToken")}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.status === 200 ? response.data : null;
+    } catch (error: any) {
+      const response = error.response;
+      if (response && response.status === 401) {
+        router.replace("/unauthorize");
+        return { ok: "Error" };
+      }
+      if (response && response.status === 403) {
+        router.replace("/is-not-auth");
+        return { ok: "Error" };
+      }
+      return {
+        errors: response
+          ? response.data.errors.errors
+          : ["An unexpected error occurred"],
+      };
+    }
+  };
 
   return {
     getCompany,
@@ -229,5 +255,6 @@ export function adminAPIs() {
     updateFood,
     deleteFood,
     addOrUpdateCompany,
+    addFoodGroup,
   };
 }
