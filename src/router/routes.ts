@@ -34,6 +34,12 @@ const routes: RouteRecordRaw[] = [
   },
   {
     // Admin sayfası yönlendirmesi
+    path: "/register",
+    component: () => import("src/layouts/LoginLayout.vue"),
+    children: [{ path: "", component: () => import("pages/Register.vue") }],
+  },
+  {
+    // Admin sayfası yönlendirmesi
     path: "/test",
     component: () => import("pages/test.vue"),
     children: [{ path: "", component: () => import("pages/test.vue") }],

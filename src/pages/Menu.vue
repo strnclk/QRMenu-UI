@@ -1,7 +1,12 @@
 <template>
   <div>
+    <div v-if="!hasFoods" class="empty-menu-message">
+      Menünüz Hazırlanıyor...
+    </div>
+
     <!-- Tablar -->
     <q-tabs
+      v-if="hasFoods"
       v-model="tab"
       inline-label
       active-bg-color="grey-9"
@@ -27,7 +32,13 @@
     </q-tabs>
 
     <!-- Tab Panel İçerikleri - Swipeable özelliği ile -->
-    <q-tab-panels class="custom-tab-panels" v-model="tab" animated swipeable>
+    <q-tab-panels
+      class="custom-tab-panels"
+      v-if="hasFoods"
+      v-model="tab"
+      animated
+      swipeable
+    >
       <q-tab-panel
         :name="`tab${index}`"
         v-for="(i, index) in dataMenu.filter((group) => group.foods.length > 0)"
@@ -95,6 +106,7 @@
     <!-- Sağa ve Sola geçiş butonları -->
     <div class="row justify-center q-pt-lg">
       <q-btn
+        v-if="hasFoods"
         icon="arrow_back"
         @click="prevTab"
         :disable="tabIndex === 0"
@@ -105,6 +117,7 @@
         class="q-mr-sm"
       />
       <q-btn
+        v-if="hasFoods"
         icon="arrow_forward"
         @click="nextTab"
         :disable="tabIndex === dataMenu.length - 1"
@@ -115,7 +128,7 @@
       />
     </div>
 
-    <q-dialog v-model="showModal">
+    <q-dialog v-if="hasFoods" v-model="showModal">
       <q-card class="modal-card q-pa-md">
         <q-card-section v-if="selectedFood">
           <div class="text-h6">{{ selectedFood?.name }}</div>
@@ -142,7 +155,10 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { menu } from "../composables/menu";
-
+import { computed } from "vue"; // computed import edin
+const hasFoods = computed(() =>
+  dataMenu.value.some((group) => group.foods.length > 0)
+);
 // Tip tanımlamaları
 interface Food {
   name: string;
@@ -221,7 +237,16 @@ onMounted(async () => {
 .custom-tab-panels {
   background-color: rgba(252, 252, 252, 0); /* Beyaz arka plan, %80 opaklık */
 }
-
+.empty-menu-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 24px;
+  color: #888;
+  font-weight: bold;
+  text-align: center;
+}
 /* 2 */
 /* .tab-img {
   width: 50px;

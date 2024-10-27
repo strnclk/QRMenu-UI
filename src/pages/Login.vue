@@ -5,49 +5,72 @@
         <h2><b>Admin Paneli</b></h2>
         <form @submit.prevent="onSubmit">
           <div class="input-group">
-            <i class="fas fa-user icon"></i> <!-- Kullanıcı İkonu -->
-            <input type="text" v-model="dataReqlogin.username" required placeholder="Kullanıcı Adı" />
+            <i class="fas fa-user icon"></i>
+            <input
+              type="text"
+              v-model="dataReqlogin.username"
+              required
+              placeholder="Kullanıcı Adı"
+            />
           </div>
           <div class="input-group">
-            <i class="fas fa-lock icon"></i> <!-- Kilit İkonu -->
-            <input type="password" v-model="dataReqlogin.password" required placeholder="Şifre" />
+            <i class="fas fa-lock icon"></i>
+            <input
+              type="password"
+              v-model="dataReqlogin.password"
+              required
+              placeholder="Şifre"
+            />
           </div>
           <button type="submit" class="btn-login">Giriş Yap</button>
         </form>
+        <button @click="goToRegister" class="btn-register">Kayıt Ol</button>
       </div>
     </div>
   </div>
 </template>
 
+<script setup>
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useQuasar } from "quasar"; // Quasar özelliklerini kullanmak için import
+import { useLoginApi } from "../composables/login";
 
-  <script setup>
-  import { ref } from "vue";
+const $q = useQuasar(); // $q değişkenini tanımlıyoruz
 
-  import {useLoginApi} from '../composables/login'
-  
+const { login } = useLoginApi();
+const router = useRouter();
 
-  const {login }= useLoginApi();
+const dataReqlogin = ref({
+  username: "",
+  password: "",
+});
 
+const onSubmit = async () => {
+  const result = await login(dataReqlogin.value);
+  if (result.success) {
+    $q.notify({
+      type: "positive",
+      message: "Giriş başarılı!",
+    });
+  } else {
+    $q.notify({
+      type: "negative",
+      message: result.errors[0] || "Bir hata oluştu!",
+    });
+  }
+};
 
-  // Form verilerini tutmak için reactive bir nesne oluşturuyoruz
-  const dataReqlogin = ref({
-    username: "",
-    password: "",
-  });
-  const dataResponse =ref({});
-  // Form gönderme fonksiyonu
-  const onSubmit = async () => {
-    let result = await login(dataReqlogin.value);
+const goToRegister = () => {
+  router.push("/register");
+};
+</script>
 
-
-  };
-  </script>
-  
-  <style scoped>
-  .all {
+<style scoped>
+.all {
   margin: 0;
   padding: 0;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
   background-size: cover;
   background-position: center;
   height: 100vh;
@@ -61,62 +84,76 @@
   font-size: 18px; /* İkon boyutu */
 }
 
-  .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
-  .login-box {
-    background-color: #ffffff;
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    width: 550px;
-    text-align: center;
-  }
+.login-box {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  width: 550px;
+  text-align: center;
+}
+.btn-register {
+  margin-top: 10px;
+  background-color: #08d112;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+  transition: background-color 0.3s, transform 0.2s;
+}
 
-  h2 {
-    color: #4da339;
-    margin-bottom: 20px;
-    font-size: 28px;
-  }
+.btn-register:hover {
+  background-color: #01fd01;
+  transform: scale(1.05);
+}
+h2 {
+  color: #4da339;
+  margin-bottom: 20px;
+  font-size: 28px;
+}
 
-  .input-group {
-    position: relative;
-    margin-bottom: 20px;
-  }
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
 
-  .input-group input {
-    width: 100%;
-    padding: 12px 40px;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 16px;
-    transition: border-color 0.3s;
-  }
+.input-group input {
+  width: 100%;
+  padding: 12px 40px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
 
-  .input-group input:focus {
-    border-color: #a2c71c;
-    outline: none;
-  }
-  .btn-login {
-    background-color: #4da339;
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    width: 100%;
-    font-size: 18px;
-    transition: background-color 0.3s, transform 0.2s;
-  }
+.input-group input:focus {
+  border-color: #a2c71c;
+  outline: none;
+}
+.btn-login {
+  background-color: #1558d4;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 18px;
+  transition: background-color 0.3s, transform 0.2s;
+}
 
-  .btn-login:hover {
-    background-color: #a2c71c;
-    transform: scale(1.05);
-  }
-  </style>
-
-  
+.btn-login:hover {
+  background-color: #0075fc;
+  transform: scale(1.05);
+}
+</style>

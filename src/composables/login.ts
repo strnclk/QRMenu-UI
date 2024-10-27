@@ -7,6 +7,7 @@ export function useLoginApi() {
   const isSignedIn = () => {
     return localStorage.getItem("accessToken") ? true : false;
   };
+
   const getAccessToken = () => {
     return localStorage.getItem("accessToken");
   };
@@ -14,32 +15,60 @@ export function useLoginApi() {
   const login = async (data: any) => {
     try {
       let response = await api.post("/Login/login", data);
-      console.log("response", response);
       if (response.status === 200) {
         localStorage.removeItem("userDetail");
         localStorage.setItem("accessToken", response.data.data);
-        router.replace("/admin"); // login olunca yönlendirilecek sayfa
-
-        return null;
+        router.replace("/admin");
+        return { success: true };
       } else {
-        return response;
+        return { success: false, errors: response.data.errors };
       }
     } catch (error: any) {
       let response = error.response;
 
-      console.log(error);
+      if (response && response.status === 400) {
+        return {
+          success: false,
+          errors: response.data.errors || ["Geçersiz giriş bilgileri."],
+        };
+      }
 
-      if (response.status === 401) {
+      if (response && response.status === 401) {
         router.replace("/unauthorize");
-        return { ok: "Error" };
+        return { success: false, errors: ["Yetkisiz erişim."] };
       }
 
-      if (error.response.status === 403) {
+      if (response && response.status === 403) {
         router.replace("/is-not-auth");
-        return { ok: "Error" };
+        return { success: false, errors: ["Erişim izni yok."] };
       }
 
-      return { errors: error.response.data.errors.errors };
+      return { success: false, errors: ["Bilinmeyen bir hata oluştu."] };
+    }
+  };
+  // Yeni eklenen register fonksiyonu
+  const register = async (data: any) => {
+    try {
+      let response = await api.post("/Login/register", data);
+      if (response.status === 200) {
+        return { success: true, message: "Kayıt başarılı!" };
+      } else {
+        return { success: false, errors: response.data.errors };
+      }
+    } catch (error: any) {
+      let response = error.response;
+
+      if (response && response.status === 400) {
+        return {
+          success: false,
+          errors: response.data.errors || ["Geçersiz kayıt bilgileri."],
+        };
+      }
+
+      return {
+        success: false,
+        errors: ["Kayıt işlemi sırasında bir hata oluştu."],
+      };
     }
   };
   const logout = () => {
@@ -54,6 +83,7 @@ export function useLoginApi() {
 
   return {
     login,
+    register, // Yeni eklenen register fonksiyonunu döndürme
     logout,
     isSignedIn,
     getAccessToken,

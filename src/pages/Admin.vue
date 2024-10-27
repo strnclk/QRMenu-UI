@@ -24,7 +24,7 @@
           bordered
           flat
           class="q-pa-md text-center"
-          style="max-width: 1500px; width: 100%; margin: 0 auto"
+          style="max-width: 1200px; width: 100%; margin: 0 auto"
         >
           <!-- Resim Alanı -->
           <q-img
@@ -847,6 +847,7 @@ const onFileChangeForGroup = async (event: Event) => {
     await uploadAndSaveImage();
   }
 };
+
 // Resim yükleyip, linkini localStorage'e kaydetme fonksiyonu
 const uploadAndSaveImage = async () => {
   try {
@@ -1008,18 +1009,18 @@ const fetchFoods = async (foodGroupId: any) => {
       foodGroupId.toString()
     );
 
-    if (foodsData) {
+    if (foodsData && foodsData.length > 0) {
       foods.value = foodsData;
       isFoodGroupVisible.value = false; // Yemekler görünsün, gruplar gizlensin
-      console.log("Yemekler başarıyla çekildi:", foodsData);
+    } else if (foodsData === null) {
+      // Eğer 404 durumundaysa (foodsData null döndüyse), yemek ekleme dialogunu aç
+      openAddMenuFoodDialog();
+      foods.value = [];
     } else {
-      console.error("Yemek verisi bulunamadı.");
+      // foodsData boşsa yine dialogu açıyoruz
       foods.value = [];
     }
-    if (localStorage.getItem("foodImageUrl")) {
-      // Eğer varsa, sil
-      localStorage.removeItem("foodImageUrl");
-    }
+
     selectedImageFileForFood.value = null;
   } catch (error: any) {
     console.error(
@@ -1206,9 +1207,12 @@ async function handleDeleteFoodGroup(id: any) {
 async function handleDeleteFood(id: number) {
   try {
     const response = await deleteFood(id);
+    console.log(response);
     if (response) {
-      // Silme işlemi başarılı olursa, yemek listesini yeniden çekiyoruz
-      await fetchFoods(selectedGroup.value.foodGroupId);
+      // "message" anahtarındaki değeri alıp tam sayıya çeviriyoruz
+      const foodGroupId = parseInt(response.message, 10); // 10 tabanında tam sayıya çevirme
+      console.log(foodGroupId); // Çevrilen değeri kontrol etmek için
+      await fetchFoods(foodGroupId);
     }
   } catch (error) {
     console.error("Yemek silinirken hata:", error);

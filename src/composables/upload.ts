@@ -10,7 +10,7 @@ export async function uploadImageAPI(file: File) {
   formData.append("image", file); // Backend'de 'image' parametresini bekliyor
 
   try {
-    const response = await api.post("/Files/uploadImage", formData, {
+    const response = await api.post("/Files/upload-image", formData, {
       headers: {
         "FuPiCo-Security": `Bearer ${localStorage.getItem("accessToken")}`,
         // 'Content-Type' manuel ayarlanmıyor, axios bunu otomatik yapıyor
