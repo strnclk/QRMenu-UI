@@ -492,8 +492,7 @@
 
           <!-- Resim Yükleme ve Önizleme -->
           <q-img
-            v-if="previewFoodImageUrl"
-            :src="previewFoodImageUrl"
+            :src="previewFoodImageUrl || '/images/menu-img.png'"
             alt="Preview Image"
             contain
             style="max-width: 100%; margin-top: 16px"
@@ -511,7 +510,7 @@
 
           <!-- Resim Seçme Butonu -->
 
-          <q-btn
+          <!-- <q-btn
             flat
             label="Resim Ekle"
             icon="add_a_photo"
@@ -525,7 +524,7 @@
               display: block;
               margin: 20px auto;
             "
-          />
+          /> -->
         </q-card-section>
 
         <q-card-actions align="right">
@@ -664,9 +663,13 @@ const saveMenuFood = async () => {
     const storedFoodGroupId = localStorage.getItem(
       "selectedFoodGroupIdForNewFood"
     );
-
     if (storedFoodGroupId) {
       newFood.value.foodGroupId = parseInt(storedFoodGroupId); // localStorage'den gelen ID'yi kullanıyoruz
+    }
+
+    // Eğer imageUrl boşsa varsayılan resmi ayarla
+    if (!newFood.value.imageUrl) {
+      newFood.value.imageUrl = "/images/menu-img.png"; // Varsayılan resim yolu
     }
 
     // API'ye POST isteği atıyoruz
@@ -675,7 +678,6 @@ const saveMenuFood = async () => {
     if (result) {
       closeAddMenuFoodDialog();
       // Gıdaları yenileme işlemi burada yapılabilir
-      localStorage.removeItem("selectedFoodGroupIdForNewFood");
     }
   } catch (error) {
     console.error("Yemek eklenirken bir hata oluştu:", error);
@@ -994,10 +996,21 @@ const performUpdateFood = async () => {
     };
 
     await updateFood(selectedFood.value.foodId, payload);
+
+    const defaultFoodGroupId = localStorage.getItem(
+      "selectedFoodGroupIdForNewFood"
+    );
+    if (defaultFoodGroupId) {
+      // LocalStorage'den alınan değeri 10 tabanında tam sayıya çevirme
+      const foodGroupId = parseInt(defaultFoodGroupId, 10);
+
+      // `fetchFoods` fonksiyonunu `foodGroupId` ile çağır
+      await fetchFoods(foodGroupId);
+    }
+
     closeUpdateFoodDialog();
 
     // Yemekleri tekrar yükleyerek güncelleme işlemini yansıt
-    await fetchFoods(selectedGroup.value.foodGroupId);
     console.log("Yemek başarıyla güncellendi.");
   } catch (error) {
     console.error("Yemek güncellenirken hata oluştu:", error);
@@ -1192,6 +1205,7 @@ const fetchFoodGroups = async () => {
 // Geri dönme fonksiyonu
 function showFoodGroups() {
   isFoodGroupVisible.value = true; // Yemek gruplarını tekrar göster
+  localStorage.removeItem("selectedFoodGroupIdForNewFood");
 }
 
 // Yemek grubu silme işlemi
