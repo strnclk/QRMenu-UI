@@ -73,7 +73,8 @@ export function useLoginApi() {
   };
   const logout = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("userDetail");
+    localStorage.removeItem("newfoodGroupImageUrl");
+    localStorage.removeItem("selectedFoodGroupIdForNewFood");
     router.replace("/login");
   };
 

@@ -7,8 +7,10 @@
       class="bg-lime text-dark shadow-2 rounded-lg"
       @input="resetViewOnTabChange"
     >
-      <q-tab name="companyInfo" icon="business" label="KURUM BİLGİLERİ" />
-      <q-tab name="edit" icon="edit" label="MENÜ DÜZENLEME" />
+      <q-tab name="companyInfo" icon="business" label="Anasayfa" />
+      <q-tab name="edit" icon="edit" label="Menü Düzenleme" />
+      <q-space />
+      <q-btn flat round style="color: red" icon="logout" @click="logout" />
     </q-tabs>
 
     <q-tab-panels
@@ -253,11 +255,16 @@
 
                 <!-- Resim Yükleme ve Önizleme -->
                 <q-img
-                  v-if="previewMenuGroupImageUrl"
-                  :src="previewMenuGroupImageUrl"
+                  :src="previewMenuGroupImageUrl || '/images/menu-img.png'"
                   alt="Preview Image"
                   contain
-                  style="max-width: 100%; margin-top: 16px"
+                  style="
+                    width: 100%;
+                    max-width: 300px;
+                    font-size: 20px;
+                    display: block;
+                    margin: 24px auto;
+                  "
                   @click="triggerMenuGroupFileInput"
                 />
 
@@ -271,21 +278,6 @@
                 />
 
                 <!-- Resim Seçme Butonu -->
-                <q-btn
-                  flat
-                  label="Resim Ekle"
-                  icon="add_a_photo"
-                  color="primary"
-                  @click="triggerMenuGroupFileInput"
-                  class="q-mt-md"
-                  style="
-                    width: 100%;
-                    max-width: 300px;
-                    font-size: 20px;
-                    display: block;
-                    margin: 20px auto;
-                  "
-                />
               </q-card-section>
               <q-card-actions align="right">
                 <q-btn
@@ -603,6 +595,7 @@
 import { ref, watch, onMounted } from "vue";
 import { adminAPIs } from "../composables/admin";
 import { uploadImageAPI } from "../composables/upload";
+import { useLoginApi } from "../composables/login";
 import { Notify } from "quasar";
 
 const isAddMenuFoodDialogOpen = ref(false);
@@ -613,6 +606,8 @@ const newFood = ref({
   imageUrl: "",
   foodGroupId: 1, // Seçilen menü grubunun ID'si
 });
+
+const { logout } = useLoginApi();
 
 const previewFoodImageUrl = ref("");
 const menuFoodFileInput = ref<HTMLInputElement | null>(null); // Tipi belirledik
@@ -723,9 +718,13 @@ const closeAddMenuGroupDialog = () => {
     companyId: 0,
     groupName: "",
     description: "",
-    imageUrl: null,
+    imageUrl: selectedMenuGroupFile.value
+      ? previewMenuGroupImageUrl.value
+      : "/images/menu-img.png",
   };
-  previewMenuGroupImageUrl.value = "";
+  previewMenuGroupImageUrl.value = selectedMenuGroupFile.value
+    ? previewMenuGroupImageUrl.value
+    : "/images/menu-img.png";
   selectedMenuGroupFile.value = null;
 };
 
@@ -781,11 +780,12 @@ const saveMenuGroup = async () => {
     return;
   }
 
+  // Resim URL'sini kontrol ediyoruz; eğer boşsa varsayılan resmi ayarlıyoruz
+  if (!newMenuGroup.value.imageUrl || newMenuGroup.value.imageUrl === "null") {
+    newMenuGroup.value.imageUrl = "/images/menu-img.png"; // Varsayılan resim yolu
+  }
+
   try {
-    // imageUrl'nin string olup olmadığını kontrol ediyoruz ve başına apiDomain ekliyoruz
-
-    newMenuGroup.value.imageUrl = `${newMenuGroup.value.imageUrl}`;
-
     // API'ye menü grubu ekleme isteği gönderiliyor
     const result = await addFoodGroup(newMenuGroup.value);
 
@@ -793,6 +793,9 @@ const saveMenuGroup = async () => {
       // Menü grubu başarıyla eklendiyse dialogu kapat ve menü gruplarını yeniden getir
       closeAddMenuGroupDialog();
       await fetchFoodGroups();
+      localStorage.removeItem("newfoodGroupImageUrl");
+      selectedMenuGroupFile.value = null;
+      previewMenuGroupImageUrl.value = "";
     } else {
       console.error("Menü grubu eklenirken bir hata oluştu");
     }
@@ -800,6 +803,7 @@ const saveMenuGroup = async () => {
     console.error("API hatası:", error);
   }
 };
+
 const selectedImageFileForGroup = ref<File | null>(null); // Yemek grubu için seçilen dosya
 
 // selectedGroup değişkeni, imageUrl özelliği ile birlikte tanımlandı
