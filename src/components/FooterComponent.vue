@@ -1,7 +1,7 @@
 <template>
   <footer class="footer">
     <a href="https://www.fupico.com" target="_blank" class="footer-link">
-      © {{ currentYear }} FuPiCo
+      © {{ new Date().getFullYear() }} FuPiCo
     </a>
     <a href="tel:+905438194976" class="footer-phone">
       <q-icon name="phone" size="24px" />
@@ -9,9 +9,11 @@
   </footer>
 </template>
 
-<script lang="ts" setup>
-import { computed } from "vue";
-const currentYear = computed(() => new Date().getFullYear());
+<script lang="ts">
+import { computed } from "vue"; //
+export default {
+  name: "FooterComponent",
+};
 </script>
 
 <style scoped>
