@@ -1,5 +1,5 @@
 <template>
-  <div class="all">
+  <div class="all" translate="no" lang="tr">
     <div class="login-container">
       <div class="login-box">
         <h2><b>Admin Paneli</b></h2>
@@ -24,7 +24,20 @@
           </div>
           <button type="submit" class="btn-login">Giriş Yap</button>
         </form>
-        <button @click="goToRegister" class="btn-register">Kayıt Ol</button>
+        <div class="action-buttons">
+          <button @click="goToRegister" class="btn-register">Kayıt Ol</button>
+          <button @click="goToForgetPassword" class="btn-forgetpassword">
+            Şifremi Unuttum
+          </button>
+        </div>
+        <footer class="footer" style="margin-top: 20px">
+          <a href="https://www.fupico.com" target="_blank" class="footer-link">
+            FuPiCo
+          </a>
+          <a href="tel:+905438194976" class="footer-phone">
+            <q-icon name="phone" size="24px" />
+          </a>
+        </footer>
       </div>
     </div>
   </div>
@@ -67,6 +80,44 @@ const goToRegister = () => {
 </script>
 
 <style scoped>
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.btn-register,
+.btn-forgetpassword {
+  width: 48%; /* %50 genişlikten biraz az */
+  padding: 10px;
+  height: 50px; /* Yükseklik aynı */
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-register {
+  background-color: #08d112;
+  color: white;
+}
+
+.btn-register:hover {
+  background-color: #01fd01;
+  transform: scale(1.05);
+}
+
+.btn-forgetpassword {
+  background-color: #ff7300;
+  color: white;
+}
+
+.btn-forgetpassword:hover {
+  background-color: #ff8f33;
+  transform: scale(1.05);
+}
+
 .all {
   margin: 0;
   padding: 0;
@@ -99,23 +150,7 @@ const goToRegister = () => {
   width: 550px;
   text-align: center;
 }
-.btn-register {
-  margin-top: 10px;
-  background-color: #08d112;
-  color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  width: 100%;
-  font-size: 16px;
-  transition: background-color 0.3s, transform 0.2s;
-}
 
-.btn-register:hover {
-  background-color: #01fd01;
-  transform: scale(1.05);
-}
 h2 {
   color: #4da339;
   margin-bottom: 20px;
@@ -155,5 +190,30 @@ h2 {
 .btn-login:hover {
   background-color: #0075fc;
   transform: scale(1.05);
+}
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 0;
+  /* background-color: #f4f4f4; */
+  border-top: 1px solid #ff0000;
+  gap: 20px;
+}
+
+.footer-link {
+  color: #ff0000;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.footer-phone {
+  color: #00e1ff;
+  text-decoration: none;
+}
+
+.footer-phone q-icon {
+  cursor: pointer;
 }
 </style>
