@@ -48,7 +48,10 @@
         <q-tab :name="`tab${index}`">
           <div class="tab-content">
             <q-img class="tab-img" :src="i.imageUrl" contain />
-            <div class="tab-label text-bold" style="font-size: large">
+            <div
+              class="tab-label text-bold"
+              style="font-size: large; min-width: 150px"
+            >
               {{ i.groupName }}
             </div>
           </div>
@@ -113,14 +116,73 @@
 
               <q-separator />
 
-              <q-card-actions class="q-pa-none" align="right">
-                <q-btn
-                  class="text-body1 text-grey-4"
-                  dense
-                  flat
-                  :label="ii.price"
-                  icon-right="currency_lira"
-                />
+              <q-card-actions class="q-pa-none" align="center">
+                <!-- isGroupPrice kontrolü -->
+                <template v-if="ii.isGroupPrice === 1">
+                  <!-- Tek fiyat (sağda hizalı) -->
+                  <div style="text-align: right; flex: 1">
+                    <q-btn
+                      class="text-body1 text-grey-4"
+                      dense
+                      flat
+                      :label="ii.price"
+                      icon-right="currency_lira"
+                    />
+                  </div>
+                </template>
+
+                <template v-else-if="ii.isGroupPrice === 2">
+                  <!-- İki fiyat (biri solda, biri sağda) -->
+                  <div style="text-align: left; flex: 1">
+                    <q-btn
+                      class="text-body1 text-grey-4"
+                      dense
+                      flat
+                      :label="`${ii.priceDesc} : ${ii.price}`"
+                      icon-right="currency_lira"
+                    />
+                  </div>
+                  <div style="text-align: right; flex: 1">
+                    <q-btn
+                      class="text-body1 text-grey-4"
+                      dense
+                      flat
+                      :label="`${ii.priceDesc2} : ${ii.price2}`"
+                      icon-right="currency_lira"
+                    />
+                  </div>
+                </template>
+
+                <template v-else-if="ii.isGroupPrice === 3">
+                  <!-- Üç fiyat (solda, ortada, sağda) -->
+                  <div style="text-align: left; flex: 1">
+                    <q-btn
+                      class="text-body1 text-grey-4"
+                      dense
+                      flat
+                      :label="`${ii.priceDesc} : ${ii.price}`"
+                      icon-right="currency_lira"
+                    />
+                  </div>
+                  <div style="text-align: center; flex: 1">
+                    <q-btn
+                      class="text-body1 text-grey-4"
+                      dense
+                      flat
+                      :label="`${ii.priceDesc2} : ${ii.price2}`"
+                      icon-right="currency_lira"
+                    />
+                  </div>
+                  <div style="text-align: right; flex: 1">
+                    <q-btn
+                      class="text-body1 text-grey-4"
+                      dense
+                      flat
+                      :label="`${ii.priceDesc3} : ${ii.price3}`"
+                      icon-right="currency_lira"
+                    />
+                  </div>
+                </template>
               </q-card-actions>
             </q-card>
           </div>
@@ -154,7 +216,7 @@
     </div>
 
     <q-dialog v-if="hasFoods" v-model="showModal">
-      <q-card class="modal-card q-pa-md">
+      <q-card class="modal-card q-pa-md" style="min-width: 350px">
         <q-card-section v-if="selectedFood">
           <div class="text-h6">{{ selectedFood?.name }}</div>
           <q-img
@@ -166,21 +228,60 @@
         </q-card-section>
         <q-card-section v-if="selectedFood?.description">
           <div>{{ selectedFood?.description }}</div>
-          <div class="text-h6 q-mt-md">{{ selectedFood?.price }} ₺</div>
+
+          <!-- isGroupPrice kontrolü -->
+          <div v-if="selectedFood?.isGroupPrice === 1" class="row justify-end">
+            <!-- Tek fiyat (sağda hizalı) -->
+            <div style="text-align: right; flex: 1">
+              <div class="text-h6 q-mt-md">{{ selectedFood?.price }}₺</div>
+            </div>
+          </div>
+
+          <div
+            v-else-if="selectedFood?.isGroupPrice === 2"
+            class="row justify-between"
+          >
+            <!-- İki fiyat (biri solda, biri sağda) -->
+            <div style="text-align: left; flex: 1">
+              <div class="text-h6 q-mt-md">
+                {{ selectedFood?.priceDesc }}: {{ selectedFood?.price }}₺
+              </div>
+            </div>
+            <div style="text-align: right; flex: 1">
+              <div class="text-h6 q-mt-md">
+                {{ selectedFood?.priceDesc2 }}: {{ selectedFood?.price2 }}₺
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-else-if="selectedFood?.isGroupPrice === 3"
+            class="row justify-around"
+          >
+            <!-- Üç fiyat (solda, ortada, sağda) -->
+            <div style="text-align: left; flex: 1">
+              <div class="text-h6 q-mt-md">
+                {{ selectedFood?.priceDesc }}: {{ selectedFood?.price }}₺
+              </div>
+            </div>
+            <div style="text-align: center; flex: 1">
+              <div class="text-h6 q-mt-md">
+                {{ selectedFood?.priceDesc2 }}: {{ selectedFood?.price2 }}₺
+              </div>
+            </div>
+            <div style="text-align: right; flex: 1">
+              <div class="text-h6 q-mt-md">
+                {{ selectedFood?.priceDesc3 }}: {{ selectedFood?.price3 }}₺
+              </div>
+            </div>
+          </div>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Kapat" @click="showModal = false" />
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <footer class="footer">
-      <a href="https://www.fupico.com" target="_blank" class="footer-link">
-        FuPiCo
-      </a>
-      <a href="tel:+905438194976" class="footer-phone">
-        <q-icon name="phone" size="24px" />
-      </a>
-    </footer>
+    <FooterComponent />
   </div>
 </template>
 
@@ -189,6 +290,8 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { menu } from "../composables/menu";
 import { computed } from "vue"; // computed import edin
+import FooterComponent from "../components/FooterComponent.vue";
+
 const hasFoods = computed(() =>
   dataMenu.value.some((group) => group.foods.length > 0)
 );
@@ -308,31 +411,6 @@ onMounted(async () => {
   font-size: 14px;
 }
 
-.footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 16px 0;
-  /* background-color: #f4f4f4; */
-  border-top: 1px solid #ff0000;
-  gap: 20px;
-}
-
-.footer-link {
-  color: #ff0000;
-  text-decoration: none;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.footer-phone {
-  color: #00e1ff;
-  text-decoration: none;
-}
-
-.footer-phone q-icon {
-  cursor: pointer;
-}
 .company-logo {
   display: block;
   margin: 0 auto;
@@ -342,5 +420,12 @@ onMounted(async () => {
 
 .company-name {
   text-transform: uppercase;
+}
+.q-btn {
+  font-size: 14px;
+  margin: 0 4px;
+}
+.row {
+  align-items: center;
 }
 </style>
