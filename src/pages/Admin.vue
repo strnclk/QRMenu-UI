@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div translate="no" lang="tr">
     <q-tabs
       v-model="tab"
       inline-label
@@ -10,7 +10,13 @@
       <q-tab name="companyInfo" icon="business" label="Anasayfa" />
       <q-tab name="edit" icon="edit" label="Menü Düzenleme" />
       <q-space />
-      <q-btn flat round style="color: red" icon="logout" @click="logout" />
+      <q-btn
+        flat
+        round
+        style="color: red"
+        icon="logout"
+        @click="confirmLogout"
+      />
     </q-tabs>
 
     <q-tab-panels
@@ -87,20 +93,6 @@
                 style="width: 100%; font-size: larger"
               />
             </a>
-
-            <!-- Kurum Adı -->
-            <div class="text-h6 q-mb-xs" style="color: red; margin-top: 15px">
-              Kurum Adı
-            </div>
-            <q-input
-              v-model="companyDto.name"
-              label="Kurum Adı"
-              outlined
-              dense
-              class="text-center"
-              style="font-size: larger; width: 100%"
-            />
-
             <!-- Linki Göster ve Kopyala -->
             <q-input
               v-model="companyDto.domain"
@@ -120,6 +112,18 @@
                 />
               </template>
             </q-input>
+            <!-- Kurum Adı -->
+            <div class="text-h6 q-mb-xs" style="color: blue; margin-top: 15px">
+              Kurum Adı
+            </div>
+            <q-input
+              v-model="companyDto.name"
+              label="Kurum Adı"
+              outlined
+              dense
+              class="text-center"
+              style="font-size: larger; width: 100%"
+            />
           </div>
 
           <!-- Değişiklikleri Kaydet Butonu -->
@@ -134,9 +138,9 @@
         </q-card>
       </q-tab-panel>
 
-      <!-- Yemek Grupları Düzenleme Tabı -->
+      <!-- Ürün Grupları Düzenleme Tabı -->
       <q-tab-panel name="edit" class="q-pa-md">
-        <div class="text-center text-h6 q-mb-md">Yemek Yönetimi</div>
+        <div class="text-center text-h6 q-mb-md">Ürün Yönetimi</div>
 
         <!-- Yeni Gıda Grubu Ekle Butonu -->
         <q-btn
@@ -150,13 +154,13 @@
         <!-- Yeni Gıda Grubu Ekle Butonu -->
         <q-btn
           v-if="!isFoodGroupVisible"
-          label="Menüye Yeni Yemek Ekle"
+          label="Menüye Yeni Ürün Ekle"
           color="primary"
           icon="add"
           @click="openAddMenuFoodDialog"
           class="q-mb-md"
         />
-        <!-- Mevcut Yemek Grupları -->
+        <!-- Mevcut Ürün Grupları -->
         <div
           v-if="foodGroups.length > 0 && isFoodGroupVisible"
           class="row q-gutter-md justify-center"
@@ -177,7 +181,7 @@
         />
 
         <div class="q-pa-md edit-tab">
-          <!-- Yemek Grupları -->
+          <!-- Ürün Grupları -->
           <div
             v-if="foodGroups.length > 0 && isFoodGroupVisible"
             class="row q-gutter-md justify-center"
@@ -193,6 +197,7 @@
               <q-card-section>
                 <q-img
                   :src="group.imageUrl"
+                  @click="fetchFoods(group.foodGroupId)"
                   alt="Food Group Image"
                   contain
                   style="max-width: 100%"
@@ -201,30 +206,31 @@
                 <div class="text-body1 text-grey-7">
                   {{ group.description || "Açıklama Yok" }}
                 </div>
-                <q-card-actions align="right">
+                <q-card-actions align="center">
                   <q-btn
                     flat
                     icon="edit"
                     color="primary"
+                    size="lg"
                     @click="openUpdateFoodGroupDialog(group)"
                   >
-                    Düzenle
                   </q-btn>
                   <q-btn
                     flat
                     icon="delete"
+                    size="lg"
                     color="negative"
-                    @click="handleDeleteFoodGroup(group.foodGroupId)"
+                    @click="confirmDeleteFoodGroup(group.foodGroupId)"
                   >
-                    Sil
                   </q-btn>
                   <q-btn
                     flat
                     icon="visibility"
                     color="secondary"
+                    size="lg"
                     @click="fetchFoods(group.foodGroupId)"
                   >
-                    Yemekler
+                    Ürünler
                   </q-btn>
                 </q-card-actions>
               </q-card-section>
@@ -302,9 +308,14 @@
             </q-card>
           </q-dialog>
 
-          <!-- Yemek Listesi -->
+          <!-- Ürün Listesi -->
           <div v-if="foods.length > 0 && !isFoodGroupVisible" class="q-pa-md">
-            <div class="text-center text-h6 q-mb-md"><h4>Yemekler</h4></div>
+            <div
+              class="text-center text-h6 q-mb-md"
+              style="margin-top: 0px; padding-top: 0px"
+            >
+              Ürünler
+            </div>
 
             <div class="row q-gutter-md justify-center">
               <q-card
@@ -318,6 +329,7 @@
                   <q-img
                     :src="food.imageUrl"
                     alt="Food Image"
+                    @click="openUpdateFoodDialog(food)"
                     contain
                     style="max-width: 100%"
                   />
@@ -329,22 +341,22 @@
                 </q-card-section>
 
                 <!-- Düzenle ve Sil Butonları -->
-                <q-card-actions align="right">
+                <q-card-actions align="center">
                   <q-btn
                     flat
                     icon="edit"
                     color="primary"
+                    size="xl"
                     @click="openUpdateFoodDialog(food)"
                   >
-                    Düzenle
                   </q-btn>
                   <q-btn
                     flat
                     icon="delete"
                     color="negative"
-                    @click="handleDeleteFood(food.foodId)"
+                    size="xl"
+                    @click="confirmDeleteFood(food.foodId)"
                   >
-                    Sil
                   </q-btn>
                 </q-card-actions>
               </q-card>
@@ -352,13 +364,13 @@
           </div>
 
           <div v-else-if="isFoodGroupVisible && foodGroups.length === 0">
-            Yemek grubu bulunamadı...
+            Ürün grubu bulunamadı...
           </div>
         </div>
       </q-tab-panel>
     </q-tab-panels>
 
-    <!-- Yemek Grubu Ekleme Dialog -->
+    <!-- Ürün Grubu Ekleme Dialog -->
     <q-dialog
       v-model="isAddMenuGroupDialogOpen"
       persistent
@@ -414,11 +426,11 @@
       </q-card>
     </q-dialog>
 
-    <!-- Yemek Grubu Güncelleme Dialog -->
+    <!-- Ürün Grubu Güncelleme Dialog -->
     <q-dialog v-model="isUpdateDialogOpen" class="custom-dialog">
       <q-card style="max-width: 800px; width: 100%">
         <q-card-section>
-          <div class="text-h6">Yemek Grubunu Güncelle</div>
+          <div class="text-h6">Ürün Grubunu Güncelle</div>
         </q-card-section>
         <q-card-section>
           <!-- Resim Önizleme Alanı -->
@@ -438,7 +450,7 @@
             accept="image/*"
             style="display: none"
           />
-          <q-input v-model="selectedGroup.groupName" label="Yemek Grubu Adı" />
+          <q-input v-model="selectedGroup.groupName" label="Ürün Grubu Adı" />
           <q-input v-model="selectedGroup.description" label="Açıklama" />
         </q-card-section>
         <q-card-actions align="right">
@@ -453,25 +465,25 @@
       </q-card>
     </q-dialog>
 
-    <!-- Yemek Güncelleme Dialog -->
+    <!-- Ürün Güncelleme Dialog -->
     <q-dialog v-model="isAddMenuFoodDialogOpen" persistent>
       <q-card style="max-width: 800px; width: 100%">
         <q-card-section>
-          <div class="text-h6">Yeni Yemek Ekle</div>
+          <div class="text-h6">Yeni Ürün Ekle</div>
         </q-card-section>
 
         <q-card-section>
-          <!-- Yemek Adı -->
+          <!-- Ürün Adı -->
 
           <q-input
             style="max-width: 100%; margin-top: 16px"
             v-model="newFood.name"
-            label="Yemek Adı"
+            label="Ürün Adı"
             outlined
             required
           />
 
-          <!-- Yemek Açıklaması -->
+          <!-- Ürün Açıklaması -->
 
           <q-input
             style="max-width: 100%; margin-top: 16px"
@@ -480,7 +492,7 @@
             outlined
           />
 
-          <!-- Yemek Fiyatı -->
+          <!-- Ürün Fiyatı -->
           <q-input
             v-model="newFood.price"
             label="Fiyat"
@@ -549,6 +561,45 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- Çıkış Onayı Dialog -->
+    <q-dialog v-model="showLogoutDialog" persistent>
+      <q-card class="dialog-card">
+        <!-- Başlık ve İkon -->
+        <q-card-section class="row items-center justify-center">
+          <q-icon name="warning" size="48px" color="red" />
+          <div class="text-h5 text-center text-bold q-ml-sm">
+            Çıkış Yapmak İstediğinize Emin misiniz?
+          </div>
+        </q-card-section>
+
+        <!-- Açıklama -->
+        <q-card-section class="text-center q-pt-md">
+          <p>
+            Çıkış yaptığınızda oturumunuz sonlandırılacak ve tekrar giriş
+            yapmanız gerekecek.
+          </p>
+        </q-card-section>
+
+        <!-- Aksiyon Butonları -->
+        <q-card-actions align="around" class="q-pt-md">
+          <q-btn
+            flat
+            label="Hayır, Vazgeç"
+            color="negative"
+            icon="close"
+            @click="closeDialog"
+          />
+          <q-btn
+            flat
+            label="Evet, Çıkış Yap"
+            color="positive"
+            icon="logout"
+            @click="performLogout"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 
   <q-dialog v-model="isUpdateFoodDialogOpen" class="custom-dialog">
@@ -574,7 +625,7 @@
           accept="image/*"
           style="display: none"
         />
-        <q-input v-model="selectedFood.name" label="Yemek Adı" />
+        <q-input v-model="selectedFood.name" label="Ürün Adı" />
         <q-input v-model="selectedFood.description" label="Açıklama" />
         <q-input v-model="selectedFood.price" label="Fiyat" type="number" />
       </q-card-section>
@@ -589,6 +640,89 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+
+  <!--Ürün Grubu Silme Onayı Dialog -->
+  <q-dialog v-model="showDeleteDialog" persistent>
+    <q-card class="dialog-card">
+      <!-- Başlık ve İkon -->
+      <q-card-section class="row items-center justify-center">
+        <q-icon name="warning" size="48px" color="red" />
+        <div class="text-h5 text-center text-bold q-ml-sm">
+          Bu ürün grubunu silmek istediğinize emin misiniz?
+        </div>
+      </q-card-section>
+
+      <!-- Açıklama -->
+      <q-card-section class="text-center q-pt-md">
+        <p>
+          Bu işlem geri alınamaz ve ürün grubuyla ilişkili tüm veriler kalıcı
+          olarak silinecektir.
+        </p>
+      </q-card-section>
+
+      <!-- Aksiyon Butonları -->
+      <q-card-actions align="around" class="q-pt-md">
+        <q-btn
+          flat
+          label="Hayır, İptal"
+          color="negative"
+          icon="close"
+          @click="closeDeleteDialog"
+        />
+        <q-btn
+          flat
+          label="Evet, Sil"
+          color="positive"
+          icon="delete"
+          @click="performDeleteFoodGroup"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
+  <!-- Ürün Silme Onayı Dialog -->
+  <q-dialog v-model="showFoodDeleteDialog" persistent>
+    <q-card class="food-dialog-card">
+      <!-- Başlık ve İkon -->
+      <q-card-section class="row items-center justify-center">
+        <q-icon name="warning" size="48px" color="red" />
+        <div class="text-h5 text-center text-bold q-ml-sm">
+          Bu ürünü silmek istediğinize emin misiniz?
+        </div>
+      </q-card-section>
+
+      <!-- Açıklama -->
+      <q-card-section class="text-center q-pt-md">
+        <p>Bu işlem geri alınamaz ve ürün kalıcı olarak silinecektir.</p>
+      </q-card-section>
+
+      <!-- Aksiyon Butonları -->
+      <q-card-actions align="around" class="q-pt-md">
+        <q-btn
+          flat
+          label="Hayır, İptal"
+          color="negative"
+          icon="close"
+          @click="closeFoodDialog"
+        />
+        <q-btn
+          flat
+          label="Evet, Sil"
+          color="positive"
+          icon="delete"
+          @click="performDeleteFood"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+  <footer class="footer" style="margin-top: 20px">
+    <a href="https://www.fupico.com" target="_blank" class="footer-link">
+      FuPiCo
+    </a>
+    <a href="tel:+905438194976" class="footer-phone">
+      <q-icon name="phone" size="24px" />
+    </a>
+  </footer>
 </template>
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
@@ -596,6 +730,58 @@ import { adminAPIs } from "../composables/admin";
 import { uploadImageAPI } from "../composables/upload";
 import { useLoginApi } from "../composables/login";
 import { Notify } from "quasar";
+
+// Dialog kontrolü
+const showFoodDeleteDialog = ref(false);
+
+// Silinecek ürünün ID'si
+const selectedFoodId = ref<number | null>(null);
+
+// Silme işlemi başlatmak için dialogu aç
+const confirmDeleteFood = (foodId: number): void => {
+  selectedFoodId.value = foodId; // Silinecek ID'yi ayarla
+  showFoodDeleteDialog.value = true; // Dialogu göster
+};
+
+// Dialogu kapat
+const closeFoodDialog = (): void => {
+  showFoodDeleteDialog.value = false;
+};
+
+// Silme işlemini gerçekleştir
+const performDeleteFood = (): void => {
+  if (selectedFoodId.value !== null) {
+    console.log("Ürün silme işlemi başlıyor:", selectedFoodId.value);
+    // Örneğin: handleDeleteFood(selectedFoodId.value);
+    closeFoodDialog(); // Dialogu kapat
+  }
+};
+
+// Dialog kontrolü
+const showDeleteDialog = ref(false);
+
+// Silinecek grubun ID'si
+const selectedFoodGroupId = ref<number | null>(null);
+
+// Silme işlemi başlatmak için dialogu aç
+const confirmDeleteFoodGroup = (foodGroupId: number): void => {
+  selectedFoodGroupId.value = foodGroupId; // Silinecek ID'yi ayarla
+  showDeleteDialog.value = true; // Dialogu göster
+};
+
+// Dialogu kapat
+const closeDeleteDialog = (): void => {
+  showDeleteDialog.value = false;
+};
+
+// Silme işlemini gerçekleştir
+const performDeleteFoodGroup = (): void => {
+  if (selectedFoodGroupId.value !== null) {
+    console.log("Silme işlemi başlıyor:", selectedFoodGroupId.value);
+    // Örneğin: handleDeleteFoodGroup(selectedFoodGroupId.value);
+    closeDeleteDialog(); // Dialogu kapat
+  }
+};
 
 const isAddMenuFoodDialogOpen = ref(false);
 const newFood = ref({
@@ -605,9 +791,23 @@ const newFood = ref({
   imageUrl: "",
   foodGroupId: 1, // Seçilen menü grubunun ID'si
 });
-
 const { logout } = useLoginApi();
+const showLogoutDialog = ref(false);
+const confirmLogout = () => {
+  // Çıkış işlemi için onay pop-up'ını aç
+  showLogoutDialog.value = true;
+};
 
+const closeDialog = () => {
+  // Pop-up'ı kapat
+  showLogoutDialog.value = false;
+};
+
+const performLogout = () => {
+  // Çıkış işlemini gerçekleştir
+  logout();
+  closeDialog();
+};
 const previewFoodImageUrl = ref("");
 const menuFoodFileInput = ref<HTMLInputElement | null>(null); // Tipi belirledik
 
@@ -680,11 +880,11 @@ const saveMenuFood = async () => {
       // Gıdaları yenileme işlemi burada yapılabilir
     }
   } catch (error) {
-    console.error("Yemek eklenirken bir hata oluştu:", error);
+    console.error("Ürün eklenirken bir hata oluştu:", error);
   }
 };
 
-// Yemek grubu için seçilen dosya ve önizleme URL'si
+// Ürün grubu için seçilen dosya ve önizleme URL'si
 
 // Menü Grubu Verisi
 interface MenuGroup {
@@ -806,7 +1006,7 @@ const saveMenuGroup = async () => {
   }
 };
 
-const selectedImageFileForGroup = ref<File | null>(null); // Yemek grubu için seçilen dosya
+const selectedImageFileForGroup = ref<File | null>(null); // Ürün grubu için seçilen dosya
 
 // selectedGroup değişkeni, imageUrl özelliği ile birlikte tanımlandı
 const selectedGroup = ref({
@@ -816,10 +1016,10 @@ const selectedGroup = ref({
   imageUrl: "", // imageUrl özelliği eklendi
   image: null,
 });
-// Yemek için seçilen dosya ve önizleme URL'si
+// Ürün için seçilen dosya ve önizleme URL'si
 const selectedImageFileForFood = ref<File | null>(null);
 const foodImagePreviewUrl = ref<string | null>(null); // Resim önizleme URL'si
-const foods = ref<Array<any>>([]); // Yemek verisi
+const foods = ref<Array<any>>([]); // Ürün verisi
 const imagePreviewUrl = ref<string | null>(null);
 const originalCompanyDto = ref({
   companyId: 0,
@@ -869,7 +1069,7 @@ const uploadAndSaveImage = async () => {
     console.error("Resim yükleme hatası:", error);
   }
 };
-// Yemek gruplarının görünürlüğünü kontrol eden flag
+// Ürün gruplarının görünürlüğünü kontrol eden flag
 const isFoodGroupVisible = ref(true);
 
 // Değişiklikleri izlemek için kullanılan flag
@@ -975,7 +1175,7 @@ const uploadImage = async () => {
     console.error("Resim yükleme hatası:", error);
   }
 };
-// Yemek güncelleme işlemi
+// Ürün güncelleme işlemi
 const performUpdateFood = async () => {
   try {
     let imageUrl = selectedFood.value.imageUrl;
@@ -1010,14 +1210,14 @@ const performUpdateFood = async () => {
 
     closeUpdateFoodDialog();
 
-    // Yemekleri tekrar yükleyerek güncelleme işlemini yansıt
-    console.log("Yemek başarıyla güncellendi.");
+    // Ürünleri tekrar yükleyerek güncelleme işlemini yansıt
+    console.log("Ürün başarıyla güncellendi.");
   } catch (error) {
-    console.error("Yemek güncellenirken hata oluştu:", error);
+    console.error("Ürün güncellenirken hata oluştu:", error);
   }
 };
 
-// Yemekleri çekme fonksiyonu
+// Ürünleri çekme fonksiyonu
 const fetchFoods = async (foodGroupId: any) => {
   try {
     const foodsData = await getFoodsByFoodGroupId(foodGroupId);
@@ -1028,9 +1228,9 @@ const fetchFoods = async (foodGroupId: any) => {
 
     if (foodsData && foodsData.length > 0) {
       foods.value = foodsData;
-      isFoodGroupVisible.value = false; // Yemekler görünsün, gruplar gizlensin
+      isFoodGroupVisible.value = false; // Ürünler görünsün, gruplar gizlensin
     } else if (foodsData === null) {
-      // Eğer 404 durumundaysa (foodsData null döndüyse), yemek ekleme dialogunu aç
+      // Eğer 404 durumundaysa (foodsData null döndüyse), Ürün ekleme dialogunu aç
       openAddMenuFoodDialog();
       foods.value = [];
     } else {
@@ -1041,7 +1241,7 @@ const fetchFoods = async (foodGroupId: any) => {
     selectedImageFileForFood.value = null;
   } catch (error: any) {
     console.error(
-      "Yemekler alınırken hata oluştu:",
+      "Ürünler alınırken hata oluştu:",
       error?.response?.data || error.message
     );
   }
@@ -1052,7 +1252,7 @@ function resetViewOnTabChange(newTab: string) {
     isFoodGroupVisible.value = true;
   }
 }
-// Yemek için dosya seçildiğinde tetiklenecek fonksiyon
+// Ürün için dosya seçildiğinde tetiklenecek fonksiyon
 const onFileChangeForFood = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
@@ -1072,7 +1272,7 @@ const onFileChangeForFood = async (event: Event) => {
   }
 };
 
-// Yemek için resim dosyası seçici tetikleme fonksiyonu
+// Ürün için resim dosyası seçici tetikleme fonksiyonu
 const fileInputForFood = ref<HTMLInputElement | null>(null);
 const triggerFileInputForFood = () => {
   if (fileInputForFood.value) {
@@ -1088,7 +1288,7 @@ const uploadAndSaveFoodImage = async () => {
       const fullImageUrl = `${apiDomain}${imageData.imageUrl}`; // Yüklenen resmin tam URL'si
       localStorage.setItem("foodImageUrl", fullImageUrl); // localStorage'e kaydet
       console.log(
-        "Yemek resmi yüklendi ve localStorage'e kaydedildi:",
+        "Ürün resmi yüklendi ve localStorage'e kaydedildi:",
         fullImageUrl
       );
     } else {
@@ -1099,7 +1299,7 @@ const uploadAndSaveFoodImage = async () => {
   }
 };
 
-// Yemek güncelleme dialogunu açma
+// Ürün güncelleme dialogunu açma
 function openUpdateFoodDialog(food: any) {
   selectedFood.value = { ...food }; // Mevcut yemeği seçiyoruz
   isUpdateFoodDialogOpen.value = true; // Dialogu açıyoruz
@@ -1112,7 +1312,7 @@ function closeUpdateFoodDialog() {
   foodImagePreviewUrl.value = null; // Önizlemeyi sıfırla
 }
 
-// Dialog durumları ve seçilen yemek
+// Dialog durumları ve seçilen Ürün
 const isUpdateFoodDialogOpen = ref(false);
 const selectedFood = ref({
   foodId: 1,
@@ -1134,7 +1334,7 @@ const triggerFileInputForGroup = () => {
   }
 };
 const fileInput = ref<HTMLInputElement | null>(null);
-// Yemek grupları verisi
+// Ürün grupları verisi
 const foodGroups = ref<Array<any>>([]);
 
 // Dialog durumu
@@ -1187,7 +1387,7 @@ async function fetchCompanyData() {
   }
 }
 
-// Yemek gruplarını çekme fonksiyonu
+// Ürün gruplarını çekme fonksiyonu
 const fetchFoodGroups = async () => {
   try {
     const groupsData = await getFoodGroups();
@@ -1198,17 +1398,17 @@ const fetchFoodGroups = async () => {
     }
     selectedImageFileForGroup.value = null;
   } catch (error) {
-    console.error("Yemek grupları alınırken hata:", error);
+    console.error("Ürün grupları alınırken hata:", error);
   }
 };
 
 // Geri dönme fonksiyonu
 function showFoodGroups() {
-  isFoodGroupVisible.value = true; // Yemek gruplarını tekrar göster
+  isFoodGroupVisible.value = true; // Ürün gruplarını tekrar göster
   localStorage.removeItem("selectedFoodGroupIdForNewFood");
 }
 
-// Yemek grubu silme işlemi
+// Ürün grubu silme işlemi
 async function handleDeleteFoodGroup(id: any) {
   try {
     const response = await deleteFoodGroup(id);
@@ -1217,11 +1417,11 @@ async function handleDeleteFoodGroup(id: any) {
       await fetchFoodGroups();
     }
   } catch (error) {
-    console.error("Yemek grubu silinirken hata:", error);
+    console.error("Ürün grubu silinirken hata:", error);
   }
 }
 
-// Yemek silme işlemi
+// Ürün silme işlemi
 async function handleDeleteFood(id: number) {
   try {
     const response = await deleteFood(id);
@@ -1233,25 +1433,25 @@ async function handleDeleteFood(id: number) {
       await fetchFoods(foodGroupId);
     }
   } catch (error) {
-    console.error("Yemek silinirken hata:", error);
+    console.error("Ürün silinirken hata:", error);
   }
 }
 
-// Yemek grubu seçildiğinde yemekleri getiriyoruz
+// Ürün grubu seçildiğinde Ürünleri getiriyoruz
 function openUpdateFoodGroupDialog(group: any) {
   selectedGroup.value = { ...group }; // Seçilen grubu ayarlıyoruz
   imagePreviewUrl.value = selectedGroup.value.imageUrl || null; // Var olan resim URL'sini gösteriyoruz
 
   isUpdateDialogOpen.value = true; // Dialogu açıyoruz
 
-  // Yemekleri çekme işlemi
+  // Ürünleri çekme işlemi
   // if (selectedGroup.value.foodGroupId) {
-  //   fetchFoods(selectedGroup.value.foodGroupId); // Seçilen yemek grubunun yemeklerini getiriyoruz
+  //   fetchFoods(selectedGroup.value.foodGroupId); // Seçilen Ürün grubunun Ürünlerini getiriyoruz
   // }
 }
-// Yemek grubu güncelleme işlemi
-// Yemek grubunu güncelleme fonksiyonu
-// Yemek grubunu güncelleme işlemi
+// Ürün grubu güncelleme işlemi
+// Ürün grubunu güncelleme fonksiyonu
+// Ürün grubunu güncelleme işlemi
 const performUpdateFoodGroup = async () => {
   try {
     let imageUrl = selectedGroup.value.imageUrl; // Mevcut imageUrl
@@ -1273,14 +1473,14 @@ const performUpdateFoodGroup = async () => {
 
     await updateFoodGroup(selectedGroup.value.foodGroupId, payload);
     closeUpdateDialog(); // Dialogu kapat
-    await fetchFoodGroups(); // Yemek gruplarını tekrar yükle (otomatik yenileme)
-    console.log("Yemek grubu başarıyla güncellendi.");
+    await fetchFoodGroups(); // Ürün gruplarını tekrar yükle (otomatik yenileme)
+    console.log("Ürün grubu başarıyla güncellendi.");
   } catch (error) {
-    console.error("Yemek grubu güncellenirken hata oluştu:", error);
+    console.error("Ürün grubu güncellenirken hata oluştu:", error);
   }
 };
 
-// Yemek gruplarını çekme fonksiyonu
+// Ürün gruplarını çekme fonksiyonu
 
 // Dialog kapatma
 
@@ -1298,12 +1498,53 @@ onMounted(async () => {
   // Orijinal verileri kaydediyoruz
   originalCompanyDto.value = { ...companyDto.value };
   if (selectedGroup.value.foodGroupId > 0 && !isUpdateDialogOpen.value) {
-    await fetchFoods(selectedGroup.value.foodGroupId); // Yemekleri sadece ID 0'dan büyükse ve dialog açık değilse çek
+    await fetchFoods(selectedGroup.value.foodGroupId); // Ürünleri sadece ID 0'dan büyükse ve dialog açık değilse çek
   }
 });
 </script>
 
 <style scoped>
+.food-dialog-card {
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #ffe5e5, #ffffff);
+  padding: 20px;
+}
+
+.food-dialog-card .q-card-section {
+  margin-bottom: 10px;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.q-card-actions .q-btn {
+  font-size: 16px;
+  padding: 10px 20px;
+}
+
+.dialog-card {
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #ffe5e5, #ffffff);
+  padding: 20px;
+}
+
+.dialog-card .q-card-section {
+  margin-bottom: 10px;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.q-card-actions .q-btn {
+  font-size: 16px;
+  padding: 10px 20px;
+}
 .q-tab-panel {
   display: flex;
   justify-content: center;
@@ -1363,5 +1604,30 @@ onMounted(async () => {
   white-space: nowrap; /* Metni tek satırda tut */
   overflow: hidden; /* Taşan kısmı gizle */
   text-overflow: ellipsis; /* Çok uzun olduğunda üç nokta ile kes */
+}
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 0;
+  /* background-color: #f4f4f4; */
+  border-top: 1px solid #ff0000;
+  gap: 20px;
+}
+
+.footer-link {
+  color: #ff0000;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.footer-phone {
+  color: #00e1ff;
+  text-decoration: none;
+}
+
+.footer-phone q-icon {
+  cursor: pointer;
 }
 </style>
