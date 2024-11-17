@@ -715,14 +715,7 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <footer class="footer" style="margin-top: 20px">
-    <a href="https://www.fupico.com" target="_blank" class="footer-link">
-      FuPiCo
-    </a>
-    <a href="tel:+905438194976" class="footer-phone">
-      <q-icon name="phone" size="24px" />
-    </a>
-  </footer>
+  <FooterComponent />
 </template>
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
@@ -730,7 +723,7 @@ import { adminAPIs } from "../composables/admin";
 import { uploadImageAPI } from "../composables/upload";
 import { useLoginApi } from "../composables/login";
 import { Notify } from "quasar";
-
+import FooterComponent from "../components/FooterComponent.vue";
 // Dialog kontrolü
 const showFoodDeleteDialog = ref(false);
 

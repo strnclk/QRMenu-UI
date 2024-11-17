@@ -30,16 +30,9 @@
             Şifremi Unuttum
           </button>
         </div>
-        <footer class="footer" style="margin-top: 20px">
-          <a href="https://www.fupico.com" target="_blank" class="footer-link">
-            FuPiCo
-          </a>
-          <a href="tel:+905438194976" class="footer-phone">
-            <q-icon name="phone" size="24px" />
-          </a>
-        </footer>
       </div>
     </div>
+    <FooterComponent />
   </div>
 </template>
 
@@ -48,6 +41,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar"; // Quasar özelliklerini kullanmak için import
 import { useLoginApi } from "../composables/login";
+import FooterComponent from "../components/FooterComponent.vue";
 
 const $q = useQuasar(); // $q değişkenini tanımlıyoruz
 
@@ -190,30 +184,5 @@ h2 {
 .btn-login:hover {
   background-color: #0075fc;
   transform: scale(1.05);
-}
-.footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 16px 0;
-  /* background-color: #f4f4f4; */
-  border-top: 1px solid #ff0000;
-  gap: 20px;
-}
-
-.footer-link {
-  color: #ff0000;
-  text-decoration: none;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.footer-phone {
-  color: #00e1ff;
-  text-decoration: none;
-}
-
-.footer-phone q-icon {
-  cursor: pointer;
 }
 </style>

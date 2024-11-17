@@ -34,6 +34,7 @@
           <button type="submit" class="btn-register">Kayıt Ol</button>
         </form>
         <button @click="goBack" class="btn-back">Geri</button>
+        <FooterComponent />
       </div>
     </div>
   </div>
@@ -44,7 +45,7 @@ import { ref } from "vue";
 import { useLoginApi } from "../composables/login";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar"; // Quasar kullanımı için import
-
+import FooterComponent from "../components/FooterComponent.vue";
 const $q = useQuasar(); // $q değişkenini tanımlama
 const router = useRouter();
 const { register } = useLoginApi();
