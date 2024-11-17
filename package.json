@@ -2,7 +2,7 @@
   "name": "qrmenuproject",
   "version": "0.0.1",
   "description": "A QR Code Menu App",
-  "productName": "QRMenu",
+  "productName": "Qr Menu",
   "author": "ssule <ssulecelepp@gmail.com>",
   "private": true,
   "scripts": {
