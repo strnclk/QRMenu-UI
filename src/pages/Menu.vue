@@ -1,5 +1,30 @@
 <template>
-  <div>
+  <div translate="no" lang="tr">
+    <div class="header">
+      <!-- Şirket Resmi veya Şirket İsmi -->
+      <div v-if="activeCompany">
+        <q-img
+          v-if="activeCompany.isActiveCompanyImage"
+          class="company-logo"
+          :src="activeCompany.companyUrl"
+          alt="Şirket Resmi"
+          contain
+          style="max-height: 100px"
+        />
+        <div
+          v-else
+          class="company-name text-center"
+          style="
+            font-size: 50px;
+            font-weight: bold;
+            color: white;
+            padding-top: 20px;
+          "
+        >
+          {{ activeCompany.name }}
+        </div>
+      </div>
+    </div>
     <div v-if="!hasFoods" class="empty-menu-message">
       Menünüz Hazırlanıyor...
     </div>
@@ -148,12 +173,20 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <footer class="footer">
+      <a href="https://www.fupico.com" target="_blank" class="footer-link">
+        FuPiCo
+      </a>
+      <a href="tel:+905438194976" class="footer-phone">
+        <q-icon name="phone" size="24px" />
+      </a>
+    </footer>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { menu } from "../composables/menu";
 import { computed } from "vue"; // computed import edin
 const hasFoods = computed(() =>
@@ -184,6 +217,10 @@ const route = useRoute();
 const userId = ref<string>(
   (route.params.userId as string) || "1f327e7a-0d39-404e-9fff-c6ff37deef00"
 );
+// Aktif şirket bilgisi için computed property
+const activeCompany = computed(() => {
+  return dataMenu.value.length > 0 ? dataMenu.value[0] : null;
+});
 
 // `dataMenu` artık `FoodGroup` tipinde olacak
 const dataMenu = ref<FoodGroup[]>([]);
@@ -263,11 +300,47 @@ onMounted(async () => {
 
 .tab-img {
   width: 50;
-  height: 50px;
+  height: 100px;
   margin-bottom: 8px;
 }
 
 .tab-label {
   font-size: 14px;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 0;
+  /* background-color: #f4f4f4; */
+  border-top: 1px solid #ff0000;
+  gap: 20px;
+}
+
+.footer-link {
+  color: #ff0000;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.footer-phone {
+  color: #00e1ff;
+  text-decoration: none;
+}
+
+.footer-phone q-icon {
+  cursor: pointer;
+}
+.company-logo {
+  display: block;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.company-name {
+  text-transform: uppercase;
 }
 </style>
