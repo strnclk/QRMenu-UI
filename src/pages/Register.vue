@@ -45,7 +45,6 @@ import { ref } from "vue";
 import { useLoginApi } from "../composables/login";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar"; // Quasar kullanımı için import
-import FooterComponent from "../components/FooterComponent.vue";
 const $q = useQuasar(); // $q değişkenini tanımlama
 const router = useRouter();
 const { register } = useLoginApi();
@@ -98,7 +97,7 @@ const goBack = () => {
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: #a2c71c;
+  color: #3973a3;
   font-size: 18px;
 }
 
@@ -107,19 +106,25 @@ const goBack = () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background: url('src/img/FuPiC.png') no-repeat center center; /* Görseli arka plan olarak ekledik */
+  background-size: cover; /* Görselin sayfanın tamamını kaplamasını sağlarız */
+  background-attachment: fixed; /* Görselin kaymasını engeller */
+  padding: 60px 20px;
+  text-align: center;
+  min-height: 100vh; /* Sayfa yüksekliğini %100 viewport yüksekliğine ayarlıyoruz */
 }
 
 .register-box {
-  background-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.5); /* Beyaz rengin %80 opaklığı */
   padding: 40px;
   border-radius: 15px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
   width: 550px;
   text-align: center;
 }
 
 h2 {
-  color: #4da339;
+  color: #3973a3;
   margin-bottom: 20px;
   font-size: 28px;
 }
@@ -150,7 +155,6 @@ h2 {
   border-radius: 10px;
   cursor: pointer;
   width: 100%;
-  font-size: 18px;
   transition: background-color 0.3s, transform 0.2s;
 }
 
@@ -168,7 +172,6 @@ h2 {
   border-radius: 10px;
   cursor: pointer;
   width: 100%;
-  font-size: 16px;
   transition: background-color 0.3s, transform 0.2s;
 }
 
