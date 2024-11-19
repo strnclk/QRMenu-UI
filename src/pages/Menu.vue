@@ -15,7 +15,7 @@
           v-else
           class="company-name text-center"
           style="
-            font-size: 50px;
+            font-size: 20px;
             font-weight: bold;
             color: white;
             padding-top: 20px;
