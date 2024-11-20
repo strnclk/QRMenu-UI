@@ -47,9 +47,11 @@ const routes: RouteRecordRaw[] = [
   {
     // Admin sayfası yönlendirmesi
     path: "/contact",
+    name: "ContactPage", // Bu kısmı ekleyin
     component: () => import("pages/ContactPage.vue"),
     children: [{ path: "", component: () => import("pages/ContactPage.vue") }],
   },
+
   // Bilinmeyen rotalar için 404 sayfası
   {
     path: "/:catchAll(.*)*",
