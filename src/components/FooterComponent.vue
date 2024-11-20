@@ -27,14 +27,16 @@ export default {
 
 .footer {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(70, 84, 148, 0.8); /* Opacity applied to the background */
-  padding: 8px 12px; /* Daha küçük padding */
-  border-top: 2px solid #22d3ff; /* Ayrım için vurgulu renk */
-  color: #f0f0f0;
-  font-family: 'Poppins', sans-serif;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2); /* Daha ince gölge */
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(70, 84, 148, 0.8);
+    padding: 8px 12px;
+    border-top: 2px solid #22d3ff;
+    color: #f0f0f0;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
+    bottom: 0;
+    width: 100%;
 }
 
 .footer-content {
