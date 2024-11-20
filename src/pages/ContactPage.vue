@@ -1,6 +1,14 @@
 <template>
   <div class="contact-page">
     <div class="container">
+      <!-- PWA Popup -->
+      <div v-if="showPopup" class="pwa-popup">
+        <p>Uygulamayı yüklemek ister misiniz?</p>
+        <div class="popup-buttons">
+          <button @click="installPWA" class="btn-popup-install">Yükle</button>
+          <button @click="closePopup" class="btn-popup-close">Kapat</button>
+        </div>
+      </div>
       <!-- Hizmet Verdiğimiz Kafeler Başta -->
       <section class="cafes">
         <h2 class="cafes-title">Hizmet Verdiğimiz Kafeler</h2>
@@ -60,7 +68,7 @@
       <section class="contact-info">
         <h5 class="info-title" style="color: tomato">İletişim Bilgilerimiz</h5>
         <p class="phone-text">
-          <a href="tel:+05438194976" class="phone-icon" style="color: white">
+          <a href="tel:+905438194976" class="phone-icon" style="color: white">
             <i class="fa fa-phone"></i>
           </a>
         </p>
@@ -85,34 +93,69 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 
-export default {
-  name: "ContactPage",
-  setup() {
-    const router = useRouter();
+// Router tanımı
+const router = useRouter();
 
-    const goToRegister = () => {
-      router.push("/register");
-    };
-
-    const goToLogin = () => {
-      router.push("/login");
-    };
-
-    const goToForgetPassword = () => {
-      router.push("/forget-password");
-    };
-
-    return {
-      goToRegister,
-      goToLogin,
-      goToForgetPassword,
-    };
-  },
+// Yönlendirme Fonksiyonları
+const goToRegister = () => {
+  router.push("/register");
 };
+
+const goToLogin = () => {
+  router.push("/login");
+};
+
+const goToForgetPassword = () => {
+  router.push("/forget-password");
+};
+
+// PWA Popup ve Yükleme İşlemleri
+const showPopup = ref(false);
+const deferredPrompt = ref<Event | null>(null);
+
+const installPWA = () => {
+  if (deferredPrompt.value) {
+    (deferredPrompt.value as any).prompt();
+    (deferredPrompt.value as any).userChoice.then((choice: any) => {
+      if (choice.outcome === "accepted") {
+        console.log("PWA yükleme kabul edildi.");
+      } else {
+        console.log("PWA yükleme reddedildi.");
+      }
+      deferredPrompt.value = null;
+      closePopup();
+    });
+  }
+};
+
+const closePopup = () => {
+  showPopup.value = false;
+};
+
+onMounted(() => {
+  // PWA için "beforeinstallprompt" olayını dinleme
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault(); // Varsayılan davranışı engelle
+    deferredPrompt.value = e;
+    showPopup.value = true;
+
+    // Popup'ı 5 saniye sonra otomatik kapat
+    setTimeout(() => {
+      if (showPopup.value) closePopup();
+    }, 5000);
+  });
+});
+
+onBeforeUnmount(() => {
+  // Event temizliği
+  window.removeEventListener("beforeinstallprompt", () => {});
+});
 </script>
+
 <style scoped>
 .btn-login {
   background-color: #1558d4;
@@ -316,5 +359,51 @@ export default {
   color: #ff9900; /* Hover sırasında renk değişimi */
   transform: scale(1.2); /* Hafif büyüme efekti */
   cursor: pointer; /* İşaretçi ikonu */
+}
+/* PWA Popup */
+.pwa-popup {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  max-width: 300px;
+  text-align: center;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.btn-popup-install,
+.btn-popup-close {
+  background-color: #08d112;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-popup-close {
+  background-color: #d41414;
+}
+
+.btn-popup-install:hover {
+  background-color: #01a501;
+  transform: scale(1.05);
+}
+
+.btn-popup-close:hover {
+  background-color: #a50000;
+  transform: scale(1.05);
 }
 </style>
