@@ -60,7 +60,7 @@
       <section class="contact-info">
         <h5 class="info-title" style="color: tomato">İletişim Bilgilerimiz</h5>
         <p class="phone-text">
-          <a href="tel:+5438194976" class="phone-icon" style="color: white">
+          <a href="tel:+05438194976" class="phone-icon" style="color: white">
             <i class="fa fa-phone"></i>
           </a>
         </p>
