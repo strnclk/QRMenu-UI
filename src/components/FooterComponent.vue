@@ -22,13 +22,17 @@ export default {
 <style scoped>
 .footer {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(70, 84, 148, 0.8); /* Arka plan opaklığı */
-  padding: 8px 12px;
-  border-top: 2px solid #22d3ff;
-  color: #f0f0f0;
-  font-family: "Poppins", sans-serif;
+
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(70, 84, 148, 0.8);
+    padding: 8px 12px;
+    border-top: 2px solid #22d3ff;
+    color: #f0f0f0;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
+    bottom: 0;
+    width: 100%;
 }
 
 .footer-content {
