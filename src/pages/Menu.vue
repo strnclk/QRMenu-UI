@@ -291,7 +291,7 @@ import { useRoute, useRouter } from "vue-router";
 import { menu } from "../composables/menu";
 import { computed } from "vue"; // computed import edin
 import FooterComponent from "../components/FooterComponent.vue";
-
+const router = useRouter();
 const hasFoods = computed(() =>
   dataMenu.value.some((group) => group.foods.length > 0)
 );
@@ -317,23 +317,28 @@ const tabIndex = ref(0);
 const route = useRoute();
 
 // URL'den userId parametresini alıyoruz, yoksa varsayılanı kullanıyoruz
-const userId = ref<string>(
-  (route.params.userId as string) || "1f327e7a-0d39-404e-9fff-c6ff37deef00"
-);
+const userId = ref<string | null>((route.params.userId as string) || null);
+
+// Eğer userId yoksa Contact sayfasına yönlendir
+if (!userId.value) {
+  router.push({ name: "ContactPage" }); // ContactPage'in adı
+}
 // Aktif şirket bilgisi için computed property
 const activeCompany = computed(() => {
   return dataMenu.value.length > 0 ? dataMenu.value[0] : null;
 });
+const dataMenu = ref([]);
 
 // `dataMenu` artık `FoodGroup` tipinde olacak
-const dataMenu = ref<FoodGroup[]>([]);
 
 const showModal = ref(false);
 // `selectedFood` artık `Food` tipinde olacak
 const selectedFood = ref<Food | null>(null);
 
 const reloadMenu = async () => {
-  dataMenu.value = await getMenu(userId.value);
+  if (userId.value) {
+    dataMenu.value = await getMenu(userId.value);
+  }
 };
 
 // Tab geçişi için fonksiyonlar
@@ -358,8 +363,9 @@ const openModal = (food: Food) => {
 };
 
 onMounted(async () => {
-  await reloadMenu();
-  tab.value = "tab0";
+  if (userId.value) {
+    await reloadMenu();
+  }
 });
 </script>
 

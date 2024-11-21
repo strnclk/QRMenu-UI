@@ -128,9 +128,9 @@ module.exports = configure(function (ctx) {
       // chainWebpackCustomSW (/* chain */) {},
 
       manifest: {
-        name: `QRMenu`,
-        short_name: `QRMenu`,
-        description: ``,
+        name: `QR Menu`,
+        short_name: `QR Menu`,
+        description: `FuPiCo QR Menü`,
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",
