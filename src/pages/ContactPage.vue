@@ -19,6 +19,9 @@
           <div class="cafe-card">
             <span class="cafe-name">Köşebaşı Cafe</span>
           </div>
+          <div class="cafe-card">
+            <span class="cafe-name">Boksör'ün Yeri</span>
+          </div>
         </div>
       </section>
 
